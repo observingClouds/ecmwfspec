@@ -10,18 +10,18 @@ Pull requests are welcomed!
 ```python
 import fsspec
 
-with fsspec.open("ec:///arch/project/user/file", "r") as f:
+with fsspec.open("ec:///ec/res4/scratch/user/file", "r") as f:
     print(f.read())
 ```
 ### Loading datasets
 
 ```python
 
-import ffspec
+import fsspec
 import xarray as xr
 
-url = fsspec.open("ec:////arch/project/file.nc", ec_cache="/scratch/b/b12346").open()
-dset = xr.open_dataset(url)
+url = fsspec.open("ec:////arch/project/file.grib").open()
+ds = xr.open_dataset(url, engine='cfgrib')  # does not work until https://github.com/ecmwf/cfgrib/issues/326 is solved
 ```
 
 

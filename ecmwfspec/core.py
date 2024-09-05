@@ -139,7 +139,6 @@ class ECFile(io.IOBase):
 
         retrieval_requests: List[str] = list()
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
-        import ipdb; ipdb.set_trace()
         for inp_file, _ in retrieve_files:
             retrieval_requests.append(inp_file)
         for file in retrieval_requests:

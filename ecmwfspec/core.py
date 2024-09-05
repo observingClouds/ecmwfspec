@@ -23,6 +23,7 @@ from typing import (
     overload,
 )
 
+import ecfs_wrapper as ecfs
 import pyslk
 from fsspec.spec import AbstractFileSystem
 
@@ -81,8 +82,8 @@ class ECFile(io.IOBase):
     """
 
     write_msg: str = "Write mode is not suppored"
-    """Error message that is thrown if the files are attempted to be opened
-    in any kind of write mode."""
+    """Error message that is thrown if the files are attempted to be opened in
+    any kind of write mode."""
 
     def __init__(
         self,
@@ -139,16 +140,12 @@ class ECFile(io.IOBase):
         """Get items from the tape archive."""
 
         retrieval_requests: List[str] = list()
-        logger.debug("Retrieving %i items from tape", len(retrieve_files))
+        logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
         for inp_file, _ in retrieve_files:
             retrieval_requests.append(inp_file)
-        logger.debug("Creating ec query for %i files", len(retrieve_files))
-        search_id = pyslk.search(pyslk.slk_gen_file_query(retrieval_requests))
-        if search_id is None:
-            raise FileNotFoundError("No files found in archive.")
-        logger.debug("Retrieving files for search id: %i", search_id)
-        pyslk.slk_retrieve(search_id, str(self.ec_cache), preserve_path=True)
-        logger.debug("Adjusting file permissions")
+        for file in retrieval_requests:
+            logger.debug("Retrieving file: %s", file)
+            ecfs.cp(file, self.ec_cache)
         for out_file in retrieval_requests:
             local_path = self.ec_cache / Path(out_file.strip("/"))
             local_path.chmod(self.file_permissions)
@@ -286,14 +283,17 @@ class ECFileSystem(AbstractFileSystem):
             or os.environ.get("EC_CACHE")
         )
         if not ec_cache:
-            ec_cache = f"/scratch/{getuser()[0]}/{getuser()}"
-            warnings.warn(
-                "Neither the ec_cache argument nor the EC_CACHE environment "
-                "variable is set. Falling back to default "
-                f"{ec_cache}",
-                UserWarning,
-                stacklevel=2,
-            )
+            ec_cache = os.environ.get("SCRATCH", None)
+            if ec_cache is None:
+                raise ValueError("No cache directory specified.")
+            else:
+                warnings.warn(
+                    "Neither the ec_cache argument nor the EC_CACHE environment "
+                    "variable is set. Falling back to default "
+                    f"{ec_cache}",
+                    UserWarning,
+                    stacklevel=2,
+                )
         self.touch = touch
         self.ec_cache = Path(ec_cache)
         self.override = override
@@ -335,14 +335,14 @@ class ECFileSystem(AbstractFileSystem):
                information dicts if detail is True.
         """
         path = Path(path)
-        filelist = pyslk.slk_list(str(path)).split("\n")
+        filelist = ecfs.ls(str(path) details=detail)
         detail_list: List[FileInfo] = []
         types = {"d": "directory", "-": "file"}
-        for file_entry in filelist[:-2]:
+        for file_entry in filelist:
             entry: FileInfo = {
-                "name": str(path / " ".join(file_entry.split()[8:])),
+                "name": str(path / file_entry.path),
                 "size": None,  # sizes are human readable not in bytes
-                "type": types[file_entry[0]],
+                "type": types[file_entry.premissions[0]],
             }
             detail_list.append(entry)
         if detail:

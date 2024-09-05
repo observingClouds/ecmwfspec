@@ -11,7 +11,6 @@ from queue import Queue
 from typing import (
     IO,
     Any,
-    AnyStr,
     Dict,
     List,
     Literal,
@@ -22,8 +21,9 @@ from typing import (
     overload,
 )
 
-from . import ecfs_wrapper as ecfs
 from fsspec.spec import AbstractFileSystem
+
+from . import ecfs_wrapper as ecfs
 
 logger = logging.getLogger("ecmwfspec")
 logger.setLevel(logging.DEBUG)
@@ -199,7 +199,7 @@ class ECFile(io.IOBase):
         """Compatibility method."""
         return True
 
-    def read(self, size: int = -1) -> AnyStr:
+    def read(self, size: int = -1) -> str:
         """The the content of a file-stream.
 
         size: int, default: -1
@@ -328,7 +328,7 @@ class ECFileSystem(AbstractFileSystem):
                information dicts if detail is True.
         """
         path = Path(path)
-        filelist = ecfs.ls(str(path), details=detail)
+        filelist = ecfs.ls(str(path), detail=detail)
         detail_list: List[FileInfo] = []
         types = {"d": "directory", "-": "file"}
         for file_entry in filelist:

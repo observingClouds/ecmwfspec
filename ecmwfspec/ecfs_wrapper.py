@@ -56,7 +56,7 @@ def ls(
         logger.error(result.stderr)
         raise Exception("Error running command: {}".format(command))
 
-    files = result.stdout.split("\n")
+    files = result.stdout.split("\n")  # type: ignore
     files = [f for f in files if f != ""]
 
     if detail:
@@ -70,12 +70,10 @@ def ls(
 def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
     """Copy a file from src to dst."""
     command = ["ecp", src, dst]
-    result = subprocess.check_output(
-        command, text=True
-    )
+    result = subprocess.check_output(command, text=True)
     logger.debug(result)
 
-    if result != '':
+    if result != "":
         logger.error(result)
         raise Exception("Error running command: {}".format(command))
 

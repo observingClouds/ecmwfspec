@@ -22,11 +22,11 @@ from typing import (
     overload,
 )
 
-import ecfs_wrapper as ecfs
+from . import ecfs_wrapper as ecfs
 from fsspec.spec import AbstractFileSystem
 
 logger = logging.getLogger("ecmwfspec")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 MAX_RETRIES = 2
@@ -139,13 +139,13 @@ class ECFile(io.IOBase):
 
         retrieval_requests: List[str] = list()
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
+        import ipdb; ipdb.set_trace()
         for inp_file, _ in retrieve_files:
             retrieval_requests.append(inp_file)
         for file in retrieval_requests:
             logger.debug("Retrieving file: %s", file)
-            ecfs.cp(file, self.ec_cache)
-        for out_file in retrieval_requests:
-            local_path = self.ec_cache / Path(out_file.strip("/"))
+            local_path = self.eccache / Path(file.strip("/"))
+            ecfs.cp("ec:" + file, str(local_path))
             local_path.chmod(self.file_permissions)
 
     def _cache_files(self) -> None:

@@ -70,13 +70,13 @@ def ls(
 def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
     """Copy a file from src to dst."""
     command = ["ecp", src, dst]
-    result = subprocess.run(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    result = subprocess.check_output(
+        command, text=True
     )
-    logger.debug(result.stdout)
+    logger.debug(result)
 
-    if result.stderr is not None:
-        logger.error(result.stderr)
+    if result != '':
+        logger.error(result)
         raise Exception("Error running command: {}".format(command))
 
     return

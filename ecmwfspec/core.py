@@ -6,7 +6,6 @@ import os
 import threading
 import time
 import warnings
-from getpass import getuser
 from pathlib import Path
 from queue import Queue
 from typing import (
@@ -277,9 +276,7 @@ class ECFileSystem(AbstractFileSystem):
         )
         ec_options = storage_options.get("ec", {})
         ec_cache = (
-            ec_options.get("ec_cache", None)
-            or ec_cache
-            or os.environ.get("EC_CACHE")
+            ec_options.get("ec_cache", None) or ec_cache or os.environ.get("EC_CACHE")
         )
         if not ec_cache:
             ec_cache = os.environ.get("SCRATCH", None)
@@ -302,14 +299,12 @@ class ECFileSystem(AbstractFileSystem):
     @overload
     def ls(
         self, path: Union[str, Path], detail: Literal[True], **kwargs: Any
-    ) -> List[FileInfo]:
-        ...
+    ) -> List[FileInfo]: ...
 
     @overload
     def ls(
         self, path: Union[str, Path], detail: Literal[False], **kwargs: Any
-    ) -> List[str]:
-        ...
+    ) -> List[str]: ...
 
     def ls(
         self, path: Union[str, Path], detail: bool = True, **kwargs: Any

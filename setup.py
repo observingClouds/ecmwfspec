@@ -24,7 +24,6 @@ setuptools.setup(
     python_requires=">=3.9",
     install_requires=[
         "fsspec>=0.9.0",
-        "pyslk @ git+https://gitlab.dkrz.de/hsm-tools/pyslk.git@master",
     ],
     extras_require={
         "tests": [

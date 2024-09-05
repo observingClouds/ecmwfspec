@@ -24,7 +24,6 @@ from typing import (
 )
 
 import ecfs_wrapper as ecfs
-import pyslk
 from fsspec.spec import AbstractFileSystem
 
 logger = logging.getLogger("ecmwfspec")

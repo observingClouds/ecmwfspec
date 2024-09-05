@@ -3,7 +3,7 @@
 
 # ecmwfspec
 
-This is work in progress! This repository showcases how the tape archive can be integrated into the scientific workflow.
+This is work in progress! This unofficial repository aims to provide an fsspec driver for the [ECMWF File Storage System](https://confluence.ecmwf.int/display/UDOC/ECFS+user+documentation)
 
 Pull requests are welcomed!
 
@@ -44,4 +44,4 @@ Now only those files are retrieved from tape which are needed for any requested
 dataset operation. In the beginning only the file containing the metadata
 (e.g. .zattrs, .zmetadata) and coordinates are requested (e.g. time). After the
 files have been retrieved once, they are saved at the path given in
-`ec_CACHE` and accessed directly from there.
+`EC_CACHE` and accessed directly from there.

@@ -334,7 +334,7 @@ class ECFileSystem(AbstractFileSystem):
                information dicts if detail is True.
         """
         path = Path(path)
-        filelist = ecfs.ls(str(path) details=detail)
+        filelist = ecfs.ls(str(path), details=detail)
         detail_list: List[FileInfo] = []
         types = {"d": "directory", "-": "file"}
         for file_entry in filelist:

@@ -179,10 +179,10 @@ class ECFile(io.IOBase):
             self._cache_files()
         return self._file_obj.tell()  # type: ignore
 
-    def seek(self, target: int) -> int:  # type: ignore
+    def seek(self, target: int, whence: int = 0) -> int:  # type: ignore
         if self._file_obj is None:
             self._cache_files()
-        return self._file_obj.seek(target)  # type: ignore
+        return self._file_obj.seek(target, whence)  # type: ignore
 
     @staticmethod
     def readable() -> Literal[True]:

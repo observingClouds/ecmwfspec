@@ -64,3 +64,6 @@ exclude_lines = "pragma: no cover"
 
 [project.entry-points."fsspec.specs"]
 ec = "ecmwfspec.ECFileSystem"
+
+[tool.pdm.scripts]
+post_install = "pre-commit install"

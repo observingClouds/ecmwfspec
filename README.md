@@ -1,5 +1,4 @@
 [![CI](https://github.com/observingClouds/ecmwfspec/workflows/Tests/badge.svg?branch=main)](https://github.com/observingClouds/ecmwfspec/actions?query=workflow%3ATests)
-[![Linter](https://github.com/observingClouds/ecmwfspec/workflows/Linter/badge.svg?branch=main)](https://github.com/observingClouds/ecmwfspec/actions?query=workflow%3ALinter)
 
 # ecmwfspec
 

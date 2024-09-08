@@ -28,7 +28,7 @@ ds = xr.open_dataset(url, engine='cfgrib')  # does not work until https://github
 ### Usage in connection with gribscan
 This is just an example what ecmwfspec can be used for.
 
-```
+```python
 import gribscan
 import json
 import xarray as xr

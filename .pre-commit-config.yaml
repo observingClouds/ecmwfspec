@@ -16,10 +16,12 @@ repos:
     rev: 24.8.0
     hooks:
       - id: black
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
     hooks:
-      - id: flake8
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1
     hooks:

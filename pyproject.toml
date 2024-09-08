@@ -26,8 +26,10 @@ build-backend = "pdm.backend"
 [tool.pdm.version]
 source = "scm"
 
-[tool.flake8]
-max-line-length = 127
+[tool.ruff]
+line-length = 87
+
+[tool.ruff.lint.mccabe]
 max-complexity = 10
 
 [tool.isort]

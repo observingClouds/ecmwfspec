@@ -1,0 +1,64 @@
+[project]
+name = "ecmwfspec"
+dynamic = ["version"]
+description = "fsspec implementation for ECMWF File Storage System"
+readme = "README.md"
+dependencies = [
+    "fsspec",
+    "dask",
+    "xarray"
+]
+
+[project.optional-dependencies]
+test = [
+    "mock",
+    "pre-commit",
+    "numpy",
+    "pandas",
+    "xarray",
+    "pytest",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.flake8]
+max-line-length = 127
+max-complexity = 10
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mpypy]
+files = "ecmwfspec/core.py"
+strict = False
+
+warn_unused_ignores = True
+warn_unreachable = True
+show_error_codes = True
+install_types = True
+non_interactive = True
+warn_unused_configs = True
+disallow_untyped_defs = True
+disallow_incomplete_defs = True
+check_untyped_defs = True
+disallow_untyped_decorators = True
+warn_redundant_casts = True
+
+[tool.coverage.run]
+omit = ["*/tests/*", "ecmwfspec/_version.py"]
+concurrency = "multiprocessing"
+
+[tool.coverage.report]
+exclude_lines = "pragma: no cover"
+
+[project.urls]
+"Homepage" = "https://github.com/observingClouds/ecmwfspec"
+
+[project.entry-points."fsspec.specs"]
+ec = "ecmwfspec.ECFileSystem"

@@ -36,19 +36,19 @@ multi_line_output = 3
 
 [tool.mypy]
 files = "ecmwfspec/core.py"
-strict = False
+strict = false
 
-warn_unused_ignores = True
-warn_unreachable = True
-show_error_codes = True
-install_types = True
-non_interactive = True
-warn_unused_configs = True
-disallow_untyped_defs = True
-disallow_incomplete_defs = True
-check_untyped_defs = True
-disallow_untyped_decorators = True
-warn_redundant_casts = True
+warn_unused_ignores = true
+warn_unreachable = true
+show_error_codes = true
+install_types = true
+non_interactive = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_redundant_casts = true
 
 [tool.coverage.run]
 omit = ["*/tests/*", "ecmwfspec/_version.py"]

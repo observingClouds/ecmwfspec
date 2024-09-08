@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 from subprocess import PIPE, run
 from tempfile import TemporaryDirectory
-from typing import Generator
+from typing import Generator, Union
 
 import mock
 import numpy as np
@@ -26,6 +26,62 @@ class ECMock:
         """Mock the ec_list method."""
         res = (
             run(["ls", "-l", inp_path], stdout=PIPE, stderr=PIPE)
+            .stdout.decode()
+            .split("\n")
+        )
+        return "\n".join(res[1:] + [res[0]])
+
+    def ls(
+        self,
+        inp_path: Union[str, Path],
+        detail: bool = False,
+        allfiles: bool = False,
+        recursive: bool = False,
+        directory: bool = False,
+    ) -> pd.DataFrame:
+        """List files in a directory."""
+        command = ["ls", inp_path]
+        columns = ["path"]
+
+        if detail:
+            command.append("-l")
+            columns = [
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+            ]
+
+        if allfiles:
+            command.append("-a")
+
+        if directory:
+            command.append("-d")
+
+        if recursive:
+            command.append("-R")
+
+        result = run(command, stdout=PIPE, stderr=PIPE, text=True)
+
+        files = result.stdout.split("\n")
+        files = [f for f in files if f != ""]
+
+        if detail:
+            files = [f.split() for f in files]
+
+        df = pd.DataFrame(files, columns=columns)
+
+        return df
+
+    def cp(self, inp_path: str, out_path: str) -> str:
+        """Mock the ec_list method."""
+        res = (
+            run(["cp", inp_path, out_path], stdout=PIPE, stderr=PIPE)
             .stdout.decode()
             .split("\n")
         )
@@ -89,7 +145,7 @@ def create_data(variable_name: str, size: int) -> xr.Dataset:
 @pytest.fixture(scope="session")
 def patch_dir() -> Generator[Path, None, None]:
     with TemporaryDirectory() as temp_dir:
-        with mock.patch("ecmwfspec.core.pyec", ECMock()):
+        with mock.patch("ecmwfspec.core.ecfs", ECMock()):
             yield Path(temp_dir)
 
 

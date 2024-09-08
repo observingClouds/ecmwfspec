@@ -6,9 +6,9 @@ import dask.array as da
 import xarray as xr
 
 
-@xr.register_dataarray_accessor("ec")
-@xr.register_dataset_accessor("ec")
-class ec:
+@xr.register_dataarray_accessor("ecfs")
+@xr.register_dataset_accessor("ecfs")
+class ecfs:
     """Request files without keeping them in memory.
 
     This accessor is similar to :py:func:`xarray.Dataset.load`,

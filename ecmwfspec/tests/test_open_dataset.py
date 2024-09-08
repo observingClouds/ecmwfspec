@@ -1,10 +1,13 @@
 """Testing opening of datasets."""
 
+import importlib
 import os
 import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest import mock
 
+import fsspec
 import pytest
 import xarray as xr
 from xarray.testing import assert_identical
@@ -32,7 +35,7 @@ def test_xr_accessor(patch_dir: Path, zarr_file: Path) -> None:
     assert (
         os.path.exists(path_to_precip_chunks) is False
     ), "zarr directory exists, though chunks should not exist yet"
-    dataset["precip"].ec.stage()
+    dataset["precip"].ecfs.stage()
     assert dataset["precip"]._in_memory is False, "dataset has been loaded into memory"
     assert os.path.exists(path_to_precip_chunks), "chunks were not requested"
     files = os.listdir(path_to_precip_chunks)
@@ -56,11 +59,26 @@ def test_reading_dataset(patch_dir: Path, netcdf_files: Path) -> None:
     assert dataset1 == dataset2
 
 
+@mock.patch.dict(os.environ, {"SCRATCH": str(TemporaryDirectory())}, clear=True)
 def test_warnings(patch_dir: Path) -> None:
-    """Check if ec specs warns the users if the cache wasn't set."""
-    import fsspec
+    """Check if ec specs warns the users if the cache wasn't set and fallback
+    not available."""
+    importlib.reload(fsspec)
 
     with pytest.warns(UserWarning):
+        fsspec.open("ec:///foo/bar.txt", mode="rt").open()
+
+    ecmwfspec.core.FileQueue.queue.clear()  # TODO: empty queue automatically
+
+
+@mock.patch.dict(os.environ, {}, clear=True)
+def test_errors(patch_dir: Path) -> None:
+    """Check if ec specs warns the users if the cache wasn't set and fallback
+    not available."""
+    importlib.reload(ecmwfspec)
+    importlib.reload(fsspec)
+
+    with pytest.raises(ValueError):
         fsspec.open("ec:///foo/bar.txt", mode="rt").open()
 
     ecmwfspec.core.FileQueue.queue.clear()  # TODO: empty queue automatically

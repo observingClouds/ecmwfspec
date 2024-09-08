@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = [
+tests = [
     "mock",
     "pre-commit",
     "numpy",

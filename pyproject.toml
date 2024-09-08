@@ -34,7 +34,7 @@ max-complexity = 10
 profile = "black"
 multi_line_output = 3
 
-[tool.mpypy]
+[tool.mypy]
 files = "ecmwfspec/core.py"
 strict = False
 

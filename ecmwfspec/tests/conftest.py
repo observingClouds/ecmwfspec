@@ -72,9 +72,10 @@ class ECMock:
         files = [f for f in files if f != ""]
 
         if detail:
-            files = [f.split() for f in files]
-
-        df = pd.DataFrame(files, columns=columns)
+            files_incl_details = [f.split() for f in files]
+            df = pd.DataFrame(files_incl_details, columns=columns)
+        else:
+            df = pd.DataFrame(files, columns=columns)
 
         return df
 

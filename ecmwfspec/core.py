@@ -31,7 +31,9 @@ logger.setLevel(logging.DEBUG)
 
 MAX_RETRIES = 2
 FileQueue: Queue[Tuple[str, str]] = Queue(maxsize=-1)
-FileInfo = TypedDict("FileInfo", {"name": str, "size": Literal[None], "type": str})
+FileInfo = TypedDict(
+    "FileInfo", {"name": str, "size": Literal[None], "type": Union[str | None]}
+)
 _retrieval_lock = threading.Lock()
 
 
@@ -329,18 +331,23 @@ class ECFileSystem(AbstractFileSystem):
         """
         path = Path(path)
         filelist = ecfs.ls(str(path), detail=detail)
+        # Drop summary line of detailed listing
+        if detail:
+            filelist = filelist[filelist.permissions != "total"]
         detail_list: List[FileInfo] = []
         types = {"d": "directory", "-": "file"}
-        for file_entry in filelist:
-            entry: FileInfo = {
+        detail_list = [
+            {
                 "name": str(path / file_entry.path),
                 "size": None,  # sizes are human readable not in bytes
-                "type": types[file_entry.premissions[0]],
+                "type": types[file_entry.permissions[0]] if detail else None,
             }
-            detail_list.append(entry)
+            for _, file_entry in filelist.iterrows()
+        ]
         if detail:
             return detail_list
-        return [d["name"] for d in detail_list]
+        else:
+            return [d["name"] for d in detail_list]
 
     def _open(
         self,

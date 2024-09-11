@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import builtins
+import os
 import shutil
 from pathlib import Path
 from subprocess import PIPE, run
@@ -79,14 +80,16 @@ class ECMock:
 
         return df
 
-    def cp(self, inp_path: str, out_path: str) -> str:
-        """Mock the ec_list method."""
-        res = (
+    def cp(self, inp_path: str, out_path: str) -> None:
+        """Mock the ecp method."""
+        inp_path = inp_path.replace("ec:", "")
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        _ = (
             run(["cp", inp_path, out_path], stdout=PIPE, stderr=PIPE)
             .stdout.decode()
             .split("\n")
         )
-        return "\n".join(res[1:] + [res[0]])
+        return
 
     def search(self, inp_f: builtins.list[str]) -> int | None:
         """Mock ec_search."""

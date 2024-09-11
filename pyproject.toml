@@ -13,10 +13,13 @@ dependencies = [
 tests = [
     "mock",
     "pre-commit",
+    "netCDF4",
     "numpy",
     "pandas",
     "xarray",
+    "zarr",
     "pytest",
+    "pytest-cov",
 ]
 
 [build-system]
@@ -54,10 +57,10 @@ warn_redundant_casts = true
 
 [tool.coverage.run]
 omit = ["*/tests/*", "ecmwfspec/_version.py"]
-concurrency = "multiprocessing"
+concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
-exclude_lines = "pragma: no cover"
+exclude_lines = ["pragma: no cover"]
 
 [project.urls]
 "Homepage" = "https://github.com/observingClouds/ecmwfspec"

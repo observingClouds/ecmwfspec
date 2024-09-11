@@ -17,6 +17,7 @@ tests = [
     "numpy",
     "pandas",
     "xarray",
+    "zarr",
     "pytest",
 ]
 

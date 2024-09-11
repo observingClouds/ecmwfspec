@@ -142,7 +142,7 @@ def test_list_files(patch_dir: Path, netcdf_files: Path) -> None:
     import fsspec
 
     files = list(netcdf_files.iterdir())
-    ec = fsspec.filesystem("ec", local_cache=patch_dir)
+    ec = fsspec.filesystem("ec", ec_cache=patch_dir)
     res = ec.ls(netcdf_files, detail=False)
     assert len(files) == len(res)
     res = ec.ls(netcdf_files, detail=True)

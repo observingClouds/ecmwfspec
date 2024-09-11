@@ -13,7 +13,7 @@ dependencies = [
 tests = [
     "mock",
     "pre-commit",
-    "netcdf4-python",
+    "netCDF4-python",
     "numpy",
     "pandas",
     "xarray",

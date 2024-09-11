@@ -59,18 +59,6 @@ def test_reading_dataset(patch_dir: Path, netcdf_files: Path) -> None:
     assert dataset1 == dataset2
 
 
-@mock.patch.dict(os.environ, {"SCRATCH": str(TemporaryDirectory())}, clear=True)
-def test_warnings(patch_dir: Path) -> None:
-    """Check if ec specs warns the users if the cache wasn't set and fallback
-    not available."""
-    importlib.reload(fsspec)
-
-    with pytest.warns(UserWarning):
-        fsspec.open("ec:///foo/bar.txt", mode="rt").open()
-
-    ecmwfspec.core.FileQueue.queue.clear()  # TODO: empty queue automatically
-
-
 @mock.patch.dict(os.environ, {}, clear=True)
 def test_errors(patch_dir: Path) -> None:
     """Check if ec specs warns the users if the cache wasn't set and fallback
@@ -79,6 +67,18 @@ def test_errors(patch_dir: Path) -> None:
     importlib.reload(fsspec)
 
     with pytest.raises(ValueError):
+        fsspec.open("ec:///foo/bar.txt", mode="rt").open()
+
+    ecmwfspec.core.FileQueue.queue.clear()  # TODO: empty queue automatically
+
+
+@mock.patch.dict(os.environ, {"SCRATCH": str(TemporaryDirectory())}, clear=True)
+def test_warnings(patch_dir: Path) -> None:
+    """Check if ec specs warns the users if the cache wasn't set and fallback
+    not available."""
+    importlib.reload(fsspec)
+
+    with pytest.warns(UserWarning):
         fsspec.open("ec:///foo/bar.txt", mode="rt").open()
 
     ecmwfspec.core.FileQueue.queue.clear()  # TODO: empty queue automatically

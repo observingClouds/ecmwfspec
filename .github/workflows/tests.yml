@@ -42,4 +42,4 @@ jobs:
       run: pytest
 
     - name: Run coverage tests
-      run: pytest --cov --cov-fail-under=50
+      run: pytest --cov=ecmwfspec --cov-fail-under=50

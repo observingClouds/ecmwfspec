@@ -18,7 +18,7 @@ def ls(
     directory: bool = False,
 ) -> pd.DataFrame:
     """List files in a directory."""
-    command = ["els", path]
+    command = ["els", str(path).replace("ec:", "ec:/")]
     columns = ["path"]
 
     if detail:
@@ -69,7 +69,7 @@ def ls(
 
 def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
     """Copy a file from src to dst."""
-    command = ["ecp", src, dst]
+    command = ["ecp", str(src).replace("ec:", "ec:/"), dst]
     result = subprocess.check_output(command, text=True)
     logger.debug(result)
 

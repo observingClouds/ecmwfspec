@@ -359,7 +359,7 @@ class ECFileSystem(AbstractFileSystem):
         **kwargs: Any,
     ) -> ECFile:
         path = Path(self._strip_protocol(path))
-        local_path = self.ec_cache.joinpath(*path.parts[1:])
+        local_path = self.ec_cache.joinpath(*path.parts)
         return ECFile(
             str(path),
             str(local_path),

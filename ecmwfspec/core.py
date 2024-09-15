@@ -349,6 +349,15 @@ class ECFileSystem(AbstractFileSystem):
         else:
             return [d["name"] for d in detail_list]
 
+    def exists(self, path: str | Path, **kwargs: Any) -> bool:
+        """Is there a file at the given path."""
+        try:
+            self.ls(path, **kwargs)
+            return True
+        except:  # noqa: E722
+            # any exception allowed bar FileNotFoundError?
+            return False
+
     def _open(
         self,
         path: str | Path,

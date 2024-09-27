@@ -1,7 +1,9 @@
 from fsspec import register_implementation
 
-from .core import ECFileSystem, logger
+from .core import ECFileSystem, ECTmpFileSystem, logger
 
-register_implementation(ECFileSystem.protocol, ECFileSystem)
+register_implementation(
+    ECFileSystem.protocol, ECFileSystem, ECTmpFileSystem, ECTmpFileSystem.protocol
+)
 
-__all__ = ["ECFileSystem", "logger"]
+__all__ = ["ECFileSystem", "ECTmpFileSystem", "logger"]

@@ -380,3 +380,50 @@ class ECFileSystem(AbstractFileSystem):
             encoding=kwargs.get("encoding"),
             file_permissions=self.file_permissions,
         )
+
+
+class ECTmpFileSystem(ECFileSystem):
+    protocol = "ectmp"
+
+    def __init__(
+        self,
+        block_size: Optional[int] = None,
+        ec_cache: Optional[Union[str, Path]] = None,
+        file_permissions: int = 0o3777,
+        touch: bool = True,
+        delay: int = 2,
+        override: bool = False,
+        **storage_options: Any,
+    ) -> None:
+        super().__init__(
+            block_size=block_size,
+            ec_cache=ec_cache,
+            file_permissions=file_permissions,
+            touch=touch,
+            delay=delay,
+            override=override,
+            **storage_options,
+        )
+
+    def _open(
+        self,
+        path: str | Path,
+        mode: str = "rb",
+        block_size: Optional[int] = None,
+        autocommit: bool = True,
+        cache_options: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> ECFile:
+        path = "TMP" / Path(self._strip_protocol(path))
+        local_path = self.ec_cache.joinpath(*path.parts)
+        return ECFile(
+            str(path),
+            str(local_path),
+            self.ec_cache,
+            mode=mode,
+            override=self.override,
+            touch=self.touch,
+            delay=self.delay,
+            encoding=kwargs.get("encoding"),
+            file_permissions=self.file_permissions,
+        )

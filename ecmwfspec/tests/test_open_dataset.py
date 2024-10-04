@@ -137,6 +137,28 @@ def test_ro_mode(patch_dir: Path) -> None:
     assert url.writable() is False
 
 
+def test_ectmp(patch_dir: Path) -> None:
+    """Check if ectmp access works."""
+    import fsspec
+
+    with TemporaryDirectory() as temp_dir:
+        inp_file = Path(temp_dir) / "foo.txt"
+        write_file = (patch_dir / "TMP").joinpath(*inp_file.parts[1:])
+        write_file.parent.mkdir(exist_ok=True, parents=True)
+        print(write_file)
+        with write_file.open("w") as f_obj:
+            f_obj.write("foo")
+        url = fsspec.open(
+            f"ectmp:///{inp_file}",
+            ec_cache=patch_dir,
+            override=False,
+            mode="rt",
+        ).open()
+    assert Path(url.name) == write_file
+    assert url.tell() == 0
+    assert url.read() == "foo"
+
+
 def test_list_files(patch_dir: Path, netcdf_files: Path) -> None:
     """Test listing the files."""
     import fsspec

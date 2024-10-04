@@ -106,7 +106,7 @@ class ECFile(io.IOBase):
             kwargs.setdefault("encoding", "utf-8")
         self._file = str(Path(local_file).expanduser().absolute())
         self._url = str(url)
-        self.eccache = Path(ec_cache)
+        self.ec_cache = Path(ec_cache)
         self.touch = touch
         self.file_permissions = file_permissions
         self._order_num = 0
@@ -145,7 +145,7 @@ class ECFile(io.IOBase):
             retrieval_requests.append(inp_file)
         for file in retrieval_requests:
             logger.debug("Retrieving file: %s", file)
-            local_path = self.eccache / Path(file.strip("/"))
+            local_path = self.ec_cache / Path(file.strip("/"))
             ecfs.cp("ec:" + file, str(local_path))
             local_path.chmod(self.file_permissions)
 
@@ -368,7 +368,7 @@ class ECFileSystem(AbstractFileSystem):
         **kwargs: Any,
     ) -> ECFile:
         path = Path(self._strip_protocol(path))
-        local_path = self.ec_cache.joinpath(*path.parts)
+        local_path = Path(os.path.join(self.ec_cache, path.relative_to(path.anchor)))
         return ECFile(
             str(path),
             str(local_path),

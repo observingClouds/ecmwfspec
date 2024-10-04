@@ -31,9 +31,14 @@ logger.setLevel(logging.DEBUG)
 
 MAX_RETRIES = 2
 FileQueue: Queue[Tuple[str, str]] = Queue(maxsize=-1)
-FileInfo = TypedDict(
-    "FileInfo", {"name": str, "size": Literal[None], "type": Union[str | None]}
-)
+
+
+class FileInfo(TypedDict):
+    name: str
+    size: Optional[int]
+    type: Optional[str]
+
+
 _retrieval_lock = threading.Lock()
 
 

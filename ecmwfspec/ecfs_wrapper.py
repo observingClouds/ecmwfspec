@@ -22,7 +22,7 @@ def ls(
     columns = ["path"]
 
     if detail:
-        command.append("-l")
+        command.insert(-1, "-l")
         columns = [
             "permissions",
             "links",
@@ -36,16 +36,16 @@ def ls(
         ]
 
     if allfiles:
-        command.append("-a")
+        command.insert(-1, "-a")
 
     if directory:
-        command.append("-d")
+        command.insert(-1, "-d")
 
     if recursive:
         logger.warning(
             "Recursive option should be avoided on very large ECFS directory tress because of timeout issues."
         )
-        command.append("-R")
+        command.insert(-1, "-R")
 
     result = subprocess.run(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True

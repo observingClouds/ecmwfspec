@@ -141,11 +141,12 @@ def test_list_files(patch_dir: Path, netcdf_files: Path) -> None:
     """Test listing the files."""
     import fsspec
 
-    files = list(netcdf_files.iterdir())
+    folder_w_netcdffiles = netcdf_files / "the_project" / "test1" / "precip"
+    files = list(folder_w_netcdffiles.iterdir())
     ec = fsspec.filesystem("ec", ec_cache=patch_dir)
-    res = ec.ls(netcdf_files, detail=False)
+    res = ec.ls(folder_w_netcdffiles, detail=False)
     assert len(files) == len(res)
-    res = ec.ls(netcdf_files, detail=True)
+    res = ec.ls(folder_w_netcdffiles, detail=True)
     for info in res:
         assert isinstance(info, dict)
         assert "name" in info

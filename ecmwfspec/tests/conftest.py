@@ -45,7 +45,7 @@ class ECMock:
         columns = ["path"]
 
         if detail:
-            command.append("-l")
+            command.insert(-1, "-l")
             columns = [
                 "permissions",
                 "links",
@@ -59,13 +59,13 @@ class ECMock:
             ]
 
         if allfiles:
-            command.append("-a")
+            command.insert(-1, "-a")
 
         if directory:
-            command.append("-d")
+            command.insert(-1, "-d")
 
         if recursive:
-            command.append("-R")
+            command.insert(-1, "-R")
 
         result = run(command, stdout=PIPE, stderr=PIPE, text=True)
 

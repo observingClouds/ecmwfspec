@@ -1,4 +1,4 @@
-[![CI](https://github.com/observingClouds/ecmwfspec/workflows/Tests/badge.svg?branch=main)](https://github.com/observingClouds/ecmwfspec/actions?query=workflow%3ATests)
+[![CI](https://github.com/observingClouds/ecmwfspec/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/observingClouds/ecmwfspec/actions?query=workflow%3ATests)
 
 # ecmwfspec
 

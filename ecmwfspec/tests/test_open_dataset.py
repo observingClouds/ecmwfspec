@@ -16,6 +16,13 @@ import ecmwfspec
 from ecmwfspec import xr_accessor  # noqa: F401
 
 
+def test_protocols() -> None:
+    """Test that fsspec protocols are registered."""
+    protocols = fsspec.available_protocols()
+    assert "ec" in protocols, f"ec not found in {protocols}"
+    assert "ectmp" in protocols, f"ectmp not found in {protocols}"
+
+
 def test_xr_accessor(patch_dir: Path, zarr_file: Path) -> None:
     """Test staging."""
     zarr_file1 = [*zarr_file.rglob("*.zarr")][0]
@@ -135,6 +142,50 @@ def test_ro_mode(patch_dir: Path) -> None:
         url.write()
 
     assert url.writable() is False
+
+
+def test_ectmp(patch_ectmp_dir: Path) -> None:
+    """Check if ectmp access works."""
+    import fsspec
+
+    with TemporaryDirectory() as temp_dir:
+        inp_file = Path(temp_dir) / "foo.txt"
+        write_file = (patch_ectmp_dir / "TMP").joinpath(*inp_file.parts[1:])
+        write_file.parent.mkdir(exist_ok=True, parents=True)
+        print(write_file)
+        with write_file.open("w") as f_obj:
+            f_obj.write("foo")
+        url = fsspec.open(
+            f"ectmp:///{inp_file}",
+            ec_cache=patch_ectmp_dir,
+            override=False,
+            mode="rt",
+        ).open()
+    assert Path(url.name) == write_file
+    assert url.tell() == 0
+    assert url.read() == "foo"
+
+
+def test_ectmp_strpath(patch_ectmp_dir: Path) -> None:
+    """Check if ectmp access works."""
+    import fsspec
+
+    with TemporaryDirectory() as temp_dir:
+        inp_file = Path(temp_dir) / "foo.txt"
+        write_file = (patch_ectmp_dir / "TMP").joinpath(*inp_file.parts[1:])
+        write_file.parent.mkdir(exist_ok=True, parents=True)
+        print(write_file)
+        with write_file.open("w") as f_obj:
+            f_obj.write("foo")
+        url = fsspec.open(
+            f"ectmp:///{inp_file}",
+            ec_cache=str(patch_ectmp_dir),
+            override=False,
+            mode="rt",
+        ).open()
+    assert Path(url.name) == write_file
+    assert url.tell() == 0
+    assert url.read() == "foo"
 
 
 def test_list_files(patch_dir: Path, netcdf_files: Path) -> None:

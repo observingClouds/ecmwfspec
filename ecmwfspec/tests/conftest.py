@@ -114,6 +114,24 @@ class ECMock:
                 shutil.copy(inp_file, Path(out_dir) / inp_file.name)
 
 
+class ECTMPMock(ECMock):
+    """A mock that emulates what ecfs is doing for temporary directories."""
+
+    def __init__(self, _cache: dict[int, builtins.list[str]] = {}) -> None:
+        super().__init__(_cache)
+
+    def cp(self, inp_path: str, out_path: str) -> None:
+        """Mock the ecp method."""
+        inp_path = inp_path.replace("ectmp:", "TMP")
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        _ = (
+            run(["cp", inp_path, out_path], stdout=PIPE, stderr=PIPE)
+            .stdout.decode()
+            .split("\n")
+        )
+        return
+
+
 def create_data(variable_name: str, size: int) -> xr.Dataset:
     """Create a xarray dataset."""
     coords: dict[str, np.ndarray] = {}
@@ -150,6 +168,13 @@ def create_data(variable_name: str, size: int) -> xr.Dataset:
 def patch_dir() -> Generator[Path, None, None]:
     with TemporaryDirectory() as temp_dir:
         with mock.patch("ecmwfspec.core.ecfs", ECMock()):
+            yield Path(temp_dir)
+
+
+@pytest.fixture(scope="session")
+def patch_ectmp_dir() -> Generator[Path, None, None]:
+    with TemporaryDirectory() as temp_dir:
+        with mock.patch("ecmwfspec.core.ecfs", ECTMPMock()):
             yield Path(temp_dir)
 
 

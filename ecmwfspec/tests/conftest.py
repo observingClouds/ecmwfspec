@@ -124,10 +124,10 @@ def create_data(variable_name: str, size: int) -> xr.Dataset:
     lat_vec = xr.DataArray(lat, name="Lt", coords=coords, dims=("y", "x"))
     coords["time"] = np.array(
         [
-            np.datetime64("2020-01-01T00:00"),
-            np.datetime64("2020-01-01T12:00"),
-            np.datetime64("2020-01-02T00:00"),
-            np.datetime64("2020-01-02T12:00"),
+            np.datetime64("2020-01-01T00:00").astype("datetime64[ns]"),
+            np.datetime64("2020-01-01T12:00").astype("datetime64[ns]"),
+            np.datetime64("2020-01-02T00:00").astype("datetime64[ns]"),
+            np.datetime64("2020-01-02T12:00").astype("datetime64[ns]"),
         ]
     )
     dims = (4, size, size)

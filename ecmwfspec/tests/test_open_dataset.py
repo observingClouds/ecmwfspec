@@ -15,6 +15,12 @@ from xarray.testing import assert_identical
 import ecmwfspec
 from ecmwfspec import xr_accessor  # noqa: F401
 
+def test_protocols() -> None:
+    """Test that fsspec protocols are registered."""
+    protocols = fsspec.available_protocols()
+    assert "ec" in protocols, f"ec not found in {protocols}"
+    assert "ectmp" in protocols, f"ectmp not found in {protocols}"
+
 
 def test_xr_accessor(patch_dir: Path, zarr_file: Path) -> None:
     """Test staging."""

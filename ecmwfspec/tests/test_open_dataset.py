@@ -15,6 +15,7 @@ from xarray.testing import assert_identical
 import ecmwfspec
 from ecmwfspec import xr_accessor  # noqa: F401
 
+
 def test_protocols() -> None:
     """Test that fsspec protocols are registered."""
     protocols = fsspec.available_protocols()
@@ -143,20 +144,20 @@ def test_ro_mode(patch_dir: Path) -> None:
     assert url.writable() is False
 
 
-def test_ectmp(patch_dir: Path) -> None:
+def test_ectmp(patch_ectmp_dir: Path) -> None:
     """Check if ectmp access works."""
     import fsspec
 
     with TemporaryDirectory() as temp_dir:
         inp_file = Path(temp_dir) / "foo.txt"
-        write_file = (patch_dir / "TMP").joinpath(*inp_file.parts[1:])
+        write_file = (patch_ectmp_dir / "TMP").joinpath(*inp_file.parts[1:])
         write_file.parent.mkdir(exist_ok=True, parents=True)
         print(write_file)
         with write_file.open("w") as f_obj:
             f_obj.write("foo")
         url = fsspec.open(
             f"ectmp:///{inp_file}",
-            ec_cache=patch_dir,
+            ec_cache=patch_ectmp_dir,
             override=False,
             mode="rt",
         ).open()

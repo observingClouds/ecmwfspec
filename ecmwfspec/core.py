@@ -419,8 +419,11 @@ class ECTmpFileSystem(ECFileSystem):
         cache_options: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> ECFile:
-        path = "TMP" / Path(self._strip_protocol(path))
-        local_path = self.ec_cache.joinpath(*path.parts)
+        if isinstance(path, Path):
+            path = "TMP" / Path(self._strip_protocol(path)).relative_to(path.anchor)
+        elif isinstance(path, str):
+            path = Path("TMP/" + path)
+        local_path = Path(os.path.join(self.ec_cache, path.relative_to(path.anchor)))
         return ECFile(
             str(path),
             str(local_path),

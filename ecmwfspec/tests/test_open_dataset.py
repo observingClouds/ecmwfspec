@@ -24,7 +24,7 @@ def test_xr_accessor(patch_dir: Path, zarr_file: Path) -> None:
     dataset = xr.open_dataset(
         urls[0],
         engine="zarr",
-        chunks={"time": 1, "x": 100, "y": 100},
+        chunks={"time": 2, "x": 100, "y": 100},
         backend_kwargs={"storage_options": {"ec": {"ec_cache": patch_dir}}},
     )
     dataset_original = xr.open_dataset(zarr_file1, engine="zarr")

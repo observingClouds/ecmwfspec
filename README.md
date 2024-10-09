@@ -2,9 +2,9 @@
 
 # ecmwfspec
 
-This is work in progress! This unofficial repository aims to provide an fsspec driver for the [ECMWF File Storage System](https://confluence.ecmwf.int/display/UDOC/ECFS+user+documentation)
+This is work in progress! This unofficial repository aims to provide an fsspec driver for the [ECMWF File Storage System](https://confluence.ecmwf.int/display/UDOC/ECFS+user+documentation).
 
-Pull requests are welcomed!
+Pull requests (also for additional protocols like MARS and FDB) are welcomed!
 
 ```python
 import fsspec

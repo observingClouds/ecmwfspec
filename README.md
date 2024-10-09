@@ -9,7 +9,7 @@ Pull requests (also for additional protocols like MARS and FDB) are welcomed!
 ```python
 import fsspec
 
-with fsspec.open("ec:///ec/res4/scratch/user/file", "r") as f:
+with fsspec.open("ec:/<user>/path/to/file", "r") as f:
     print(f.read())
 ```
 ## Loading datasets
@@ -19,7 +19,7 @@ with fsspec.open("ec:///ec/res4/scratch/user/file", "r") as f:
 import fsspec
 import xarray as xr
 
-url = fsspec.open("ec:////arch/project/file.grib").open()
+url = fsspec.open("ec:/arch/project/file.grib").open()
 ds = xr.open_dataset(url, engine='cfgrib')  # does not work until https://github.com/ecmwf/cfgrib/issues/326 is solved
 ```
 

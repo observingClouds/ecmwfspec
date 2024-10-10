@@ -22,6 +22,7 @@ from typing import (
 )
 
 from fsspec.spec import AbstractFileSystem
+from upath import UPath
 
 from . import ecfs_wrapper as ecfs
 
@@ -435,3 +436,14 @@ class ECTmpFileSystem(ECFileSystem):
             encoding=kwargs.get("encoding"),
             file_permissions=self.file_permissions,
         )
+
+
+class ECFSPath(UPath):
+    @property
+    def path(self) -> str:
+        path = "/".join(self.parts)
+
+        if not path.startswith("/"):
+            path = "/" + path
+
+        return path

@@ -69,5 +69,8 @@ exclude_lines = ["pragma: no cover"]
 ec = "ecmwfspec.ECFileSystem"
 ectmp = "ecmwfspec.ECTmpFileSystem"
 
+[project.entry-points."universal_pathlib.implementations"]
+ec = "ecmwfspec.core:ECFSPath"
+
 [tool.pdm.scripts]
 post_install = "pre-commit install"

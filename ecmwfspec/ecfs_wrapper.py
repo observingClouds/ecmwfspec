@@ -64,9 +64,9 @@ def ls(
     result_lines = [f for f in result_lines if f != ""]
 
     if detail:
-        files = [" ".join(f.split()) for f in result_lines]
+        files = [f.split() for f in result_lines]
     else:
-        files = result_lines
+        files = result_lines  # type: ignore
 
     df = pd.DataFrame(files, columns=columns)
 

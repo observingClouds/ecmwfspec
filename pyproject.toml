@@ -6,6 +6,8 @@ readme = "README.md"
 dependencies = [
     "fsspec",
     "dask",
+    "universal-pathlib",
+    "typing_extensions; python_version<'3.11'",
     "xarray"
 ]
 
@@ -68,6 +70,9 @@ exclude_lines = ["pragma: no cover"]
 [project.entry-points."fsspec.specs"]
 ec = "ecmwfspec.ECFileSystem"
 ectmp = "ecmwfspec.ECTmpFileSystem"
+
+[project.entry-points."universal_pathlib.implementations"]
+ec = "ecmwfspec.core:ECFSPath"
 
 [tool.pdm.scripts]
 post_install = "pre-commit install"

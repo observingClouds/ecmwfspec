@@ -48,19 +48,25 @@ def ls(
         command.insert(-1, "-R")
 
     result = subprocess.run(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     logger.debug(result.stdout)
+    if result.returncode != 0:
+        logger.debug(result.stderr)
+        if "Permission denied" in result.stderr:
+            raise PermissionError(result.stderr)
+        elif "File does not exist" in result.stderr:
+            raise FileNotFoundError(result.stderr)
+        else:
+            raise Exception(result.stderr)
 
-    if result.stderr is not None:
-        logger.error(result.stderr)
-        raise Exception("Error running command: {}".format(command))
-
-    files = result.stdout.split("\n")  # type: ignore
-    files = [f for f in files if f != ""]
+    result_lines = result.stdout.split("\n")
+    result_lines = [f for f in result_lines if f != ""]
 
     if detail:
-        files = [f.split() for f in files]
+        files = [f.split() for f in result_lines]
+    else:
+        files = result_lines  # type: ignore
 
     df = pd.DataFrame(files, columns=columns)
 

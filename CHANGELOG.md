@@ -1,5 +1,10 @@
 # Changelog
 
+## unreleased
+- Fix `isdir()` function call [#15](https://github.com/observingClouds/ecmwfspec/pull/15)
+- Add UPath support for ec-protocol [#15](https://github.com/observingClouds/ecmwfspec/pull/15)
+- Raise specific errors when `ls` fails due to PermissionError or FileNotFoundError [#15](https://github.com/observingClouds/ecmwfspec/pull/15)
+
 ## 0.0.2
 - Add support for `ectmp` file paths [#2](https://github.com/observingClouds/ecmwfspec/issues/2)
 - Fix file listing when using additional flags [#9](https://github.com/observingClouds/ecmwfspec/issues/9)

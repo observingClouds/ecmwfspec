@@ -44,6 +44,10 @@ class ECMock:
         command = ["ls", inp_path]
         columns = ["path"]
 
+        if recursive:
+            command.insert(-1, "-R")
+            detail = True
+
         if detail:
             command.insert(-1, "-l")
             columns = [
@@ -64,16 +68,29 @@ class ECMock:
         if directory:
             command.insert(-1, "-d")
 
-        if recursive:
-            command.insert(-1, "-R")
-
         result = run(command, stdout=PIPE, stderr=PIPE, text=True)
 
         files = result.stdout.split("\n")
         files = [f for f in files if f != ""]
 
-        if detail:
+        if detail and not recursive:
             files_incl_details = [f.split() for f in files]
+            df = pd.DataFrame(files_incl_details, columns=columns)
+        elif recursive:
+            files_incl_details = []
+            current_dir = None
+            for line in files:
+                if line.startswith("/"):
+                    current_dir = line.rstrip(":")
+                elif line.startswith("total"):
+                    continue
+                else:
+                    details = line.split()
+                    if current_dir and details[0].startswith("l"):
+                        details.append(current_dir + "/" + details[-1])
+                    elif current_dir:
+                        details.append(current_dir + "/" + details[-1])
+                    files_incl_details.append(details[0:8] + [details[-1]])
             df = pd.DataFrame(files_incl_details, columns=columns)
         else:
             df = pd.DataFrame(files, columns=columns)

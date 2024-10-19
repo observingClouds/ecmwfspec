@@ -347,6 +347,8 @@ class ECFileSystem(AbstractFileSystem):
             path = UPath(path)
         elif isinstance(path, Path):
             path = UPath(str(path))
+        else:
+            raise TypeError(f"Path type {type(path)} not supported.")
         if recursive:
             filelist = self.file_listing_cache.loc[
                 self.file_listing_cache["path"].str.startswith(path.path)

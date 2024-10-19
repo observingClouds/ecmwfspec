@@ -21,6 +21,13 @@ def ls(
     command = ["els", str(path).replace("ec:", "ec:/")]
     columns = ["path"]
 
+    if recursive:
+        logger.warning(
+            "Recursive option should be avoided on very large ECFS directory trees because of timeout issues."
+        )
+        command.insert(-1, "-R")
+        detail = True
+
     if detail:
         command.insert(-1, "-l")
         columns = [
@@ -41,12 +48,6 @@ def ls(
     if directory:
         command.insert(-1, "-d")
 
-    if recursive:
-        logger.warning(
-            "Recursive option should be avoided on very large ECFS directory tress because of timeout issues."
-        )
-        command.insert(-1, "-R")
-
     result = subprocess.run(
         command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
@@ -63,8 +64,23 @@ def ls(
     result_lines = result.stdout.split("\n")
     result_lines = [f for f in result_lines if f != ""]
 
-    if detail:
+    if detail and not recursive:
         files = [f.split() for f in result_lines]
+    elif recursive:
+        files = []
+        current_dir = None
+        for line in result_lines:
+            if line.startswith("/"):
+                current_dir = line.rstrip(":")
+            elif line.startswith("total"):
+                continue
+            elif line.endswith(" .") or line.endswith(" .."):
+                continue
+            else:
+                details = line.split()
+                if current_dir:
+                    details.append(current_dir + "/" + details[-1])
+                files.append(details[0:8] + [details[-1]])
     else:
         files = result_lines  # type: ignore
 

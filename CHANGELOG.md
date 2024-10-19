@@ -1,6 +1,8 @@
 # Changelog
 
 ## unreleased
+- Add caching of file listings for faster look-ups [#18](https://github.com/observingClouds/ecmwfspec/pull/18)
+- Add support for recursive file listings (`ls -R`) [#18](https://github.com/observingClouds/ecmwfspec/pull/18)
 - Fix `isdir()` function call [#15](https://github.com/observingClouds/ecmwfspec/pull/15)
 - Add UPath support for ec-protocol [#15](https://github.com/observingClouds/ecmwfspec/pull/15)
 - Raise specific errors when `ls` fails due to PermissionError or FileNotFoundError [#15](https://github.com/observingClouds/ecmwfspec/pull/15)

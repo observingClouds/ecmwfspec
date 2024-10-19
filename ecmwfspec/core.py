@@ -21,6 +21,7 @@ from typing import (
     overload,
 )
 
+import pandas as pd
 from fsspec.spec import AbstractFileSystem
 from upath import UPath
 
@@ -302,19 +303,36 @@ class ECFileSystem(AbstractFileSystem):
         self.override = override
         self.delay = delay
         self.file_permissions = file_permissions
+        self.file_listing_cache: pd.DataFrame = pd.DataFrame(
+            columns=[
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+            ]
+        )
 
     @overload
     def ls(
-        self, path: Union[str, Path], detail: Literal[True], **kwargs: Any
+        self, path: Union[str, Path, UPath], detail: Literal[True], **kwargs: Any
     ) -> List[FileInfo]: ...
 
     @overload
     def ls(
-        self, path: Union[str, Path], detail: Literal[False], **kwargs: Any
+        self, path: Union[str, Path, UPath], detail: Literal[False], **kwargs: Any
     ) -> List[str]: ...
 
     def ls(
-        self, path: Union[str, Path], detail: bool = True, **kwargs: Any
+        self,
+        path: Union[str, Path, UPath],
+        detail: bool = True,
+        recursive: bool = False,
+        **kwargs: Any,
     ) -> Union[List[FileInfo], List[str]]:
         """List objects at path.
 
@@ -322,7 +340,7 @@ class ECFileSystem(AbstractFileSystem):
 
         Parameters
         ----------
-        path: str | pathlib.Path
+        path: str | pathlib.Path | UPath
             Path of the file object that is listed.
         detail: bool, default: True
             if True, gives a list of dictionaries, where each is the same as
@@ -335,17 +353,39 @@ class ECFileSystem(AbstractFileSystem):
         list : List of strings if detail is False, or list of directory
                information dicts if detail is True.
         """
-        path = Path(path)
-        filelist = ecfs.ls(str(path), detail=detail)
+        if isinstance(path, UPath):
+            path = path
+        elif isinstance(path, str):
+            path = UPath(path)
+        elif isinstance(path, Path):
+            path = UPath(str(path))
+        else:
+            raise TypeError(f"Path type {type(path)} not supported.")
+        if recursive:
+            filelist = self.file_listing_cache.loc[
+                self.file_listing_cache["path"].str.startswith(path.path)
+            ]
+        else:
+            filelist = self.file_listing_cache.loc[
+                self.file_listing_cache["path"] == str(path)
+            ]
+        if filelist.empty:
+            filelist = ecfs.ls(str(path), detail=detail, recursive=recursive)
+            if (
+                recursive
+            ):  # only in case of recursive to ensure subdirectories are added to cache
+                self.file_listing_cache = pd.concat(
+                    [self.file_listing_cache, filelist], ignore_index=True
+                )
         # Drop summary line of detailed listing
-        if detail:
-            filelist = filelist[filelist.permissions != "total"]
+        # if detail:
+        #     filelist = filelist[filelist.permissions != "total"]
         detail_list: List[FileInfo] = []
-        types = {"d": "directory", "-": "file"}
+        types = {"d": "directory", "-": "file", "o": "file"}  # o is undocumented
         detail_list = [
             {
                 "name": str(path / file_entry.path),
-                "size": None,  # sizes are human readable not in bytes
+                "size": file_entry.size,
                 "type": types[file_entry.permissions[0]] if detail else None,
             }
             for _, file_entry in filelist.iterrows()

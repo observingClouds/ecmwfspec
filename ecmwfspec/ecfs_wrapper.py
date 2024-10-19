@@ -74,13 +74,15 @@ def ls(
                 current_dir = line.rstrip(":")
             elif line.startswith("total"):
                 continue
+            elif line.endswith("/.") or line.endswith("/.."):
+                continue
             else:
                 details = line.split()
-                if current_dir and details[0].startswith("l"):
-                    details.append(current_dir + "/" + details[-1])
-                elif current_dir:
+                if current_dir:
                     details.append(current_dir + "/" + details[-1])
                 files.append(details[0:8] + [details[-1]])
+    else:
+        files = result_lines  # type: ignore
 
     df = pd.DataFrame(files, columns=columns)
 

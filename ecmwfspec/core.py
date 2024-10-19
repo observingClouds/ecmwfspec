@@ -384,7 +384,7 @@ class ECFileSystem(AbstractFileSystem):
         types = {"d": "directory", "-": "file", "o": "file"}  # o is undocumented
         detail_list = [
             {
-                "name": str(path / file_entry.path),
+                "name": str(path.path / file_entry.path),
                 "size": file_entry.size,
                 "type": types[file_entry.permissions[0]] if detail else None,
             }

@@ -303,7 +303,19 @@ class ECFileSystem(AbstractFileSystem):
         self.override = override
         self.delay = delay
         self.file_permissions = file_permissions
-        self.file_listing_cache: pd.DataFrame = pd.DataFrame()
+        self.file_listing_cache: pd.DataFrame = pd.DataFrame(
+            columns=[
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+            ]
+        )
 
     @overload
     def ls(

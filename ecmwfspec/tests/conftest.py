@@ -74,7 +74,13 @@ class ECMock:
         files = [f for f in files if f != ""]
 
         if detail and not recursive:
-            files_incl_details = [f.split() for f in files]
+            files_incl_details = []
+            current_dir = None
+            for line in files:
+                if line.startswith("total"):
+                    continue
+                else:
+                    files_incl_details.append(line.split())
             df = pd.DataFrame(files_incl_details, columns=columns)
         elif recursive:
             files_incl_details = []

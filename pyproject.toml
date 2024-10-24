@@ -73,6 +73,7 @@ ectmp = "ecmwfspec.ECTmpFileSystem"
 
 [project.entry-points."universal_pathlib.implementations"]
 ec = "ecmwfspec.core:ECFSPath"
+ectmp = "ecmwfspec.core:ECFSPath"
 
 [tool.pdm.scripts]
 post_install = "pre-commit install"

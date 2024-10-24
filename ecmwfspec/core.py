@@ -489,3 +489,16 @@ class ECFSPath(UPath):
             path = "/" + path
 
         return path
+
+
+class ECFSTmpPath(UPath):
+    @property
+    def path(self) -> str:
+        path = "/".join(self.parts)
+
+        if not path.startswith("/TMP/"):
+            path = "/TMP/" + path
+
+        # self.protocol = "ec"
+
+        return path

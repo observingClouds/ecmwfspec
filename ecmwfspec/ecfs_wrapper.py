@@ -6,19 +6,27 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
+from upath import UPath
 
 logger = logging.getLogger(__name__)
 
 
 def ls(
-    path: Union[str, Path],
+    path: Union[str, Path, UPath],
     detail: bool = False,
     allfiles: bool = False,
     recursive: bool = False,
     directory: bool = False,
 ) -> pd.DataFrame:
     """List files in a directory."""
-    command = ["els", str(path).replace("ec:", "ec:/")]
+    if isinstance(path, Path):
+        path = str(path)
+    elif isinstance(path, str):
+        path = path
+    elif isinstance(path, UPath):
+        path = path.path
+
+    command = ["els", path.replace("ec:", "ec:/").replace("ectmp:", "ectmp:/")]
     columns = ["path"]
 
     if recursive:
@@ -68,7 +76,7 @@ def ls(
         files = [f.split() for f in result_lines]
     elif recursive:
         files = []
-        current_dir = None
+        current_dir = path.replace("ec:", "").replace("ectmp:", "")
         for line in result_lines:
             if line.startswith("/"):
                 current_dir = line.rstrip(":")
@@ -91,7 +99,11 @@ def ls(
 
 def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
     """Copy a file from src to dst."""
-    command = ["ecp", str(src).replace("ec:", "ec:/"), dst]
+    command = [
+        "ecp",
+        str(src).replace("ec:", "ec:/").replace("ectmp:", "ectmp:/"),
+        dst,
+    ]
     result = subprocess.check_output(command, text=True)
     logger.debug(result)
 

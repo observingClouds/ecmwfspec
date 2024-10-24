@@ -361,6 +361,10 @@ class ECFileSystem(AbstractFileSystem):
             path = UPath(str(path))
         else:
             raise TypeError(f"Path type {type(path)} not supported.")
+        if self.protocol == "ectmp":
+            url = "ectmp:/" / path.relative_to(path.anchor)
+        else:
+            url = path
         if recursive:
             filelist = self.file_listing_cache.loc[
                 self.file_listing_cache["path"].str.startswith(path.path)
@@ -370,7 +374,9 @@ class ECFileSystem(AbstractFileSystem):
                 self.file_listing_cache["path"] == str(path)
             ]
         if filelist.empty:
-            filelist = ecfs.ls(str(path), detail=detail, recursive=recursive)
+            filelist = ecfs.ls(str(url), detail=detail, recursive=recursive)
+            if self.protocol == "ectmp":
+                filelist.path = filelist.path.str.replace("/TMP", "")
             if (
                 recursive
             ):  # only in case of recursive to ensure subdirectories are added to cache
@@ -463,9 +469,9 @@ class ECTmpFileSystem(ECFileSystem):
         **kwargs: Any,
     ) -> ECFile:
         if isinstance(path, Path):
-            path = "TMP" / Path(self._strip_protocol(path)).relative_to(path.anchor)
+            path = "/TMP" / Path(self._strip_protocol(path)).relative_to(path.anchor)
         elif isinstance(path, str):
-            path = Path("TMP/" + path)
+            path = Path("/TMP/" + path)
         local_path = Path(os.path.join(self.ec_cache, path.relative_to(path.anchor)))
         return ECFile(
             str(path),

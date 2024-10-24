@@ -430,6 +430,8 @@ class ECFileSystem(AbstractFileSystem):
 
 class ECTmpFileSystem(ECFileSystem):
     protocol = "ectmp"
+    local_file = True
+    sep = "/"
 
     def __init__(
         self,

@@ -1,6 +1,8 @@
 # Changelog
 
 ## unreleased
+- Fix registration of ectmp file protocol [#22](https://github.com/observingClouds/ecmwfspec/pull/22)
+- Enable file listing cache for ectmp [#22](https://github.com/observingClouds/ecmwfspec/pull/22)
 - Dependebot version update of fsspec [#21](https://github.com/observingClouds/ecmwfspec/pull/21)
 - Fix pre-commit docformatter hook [#19](https://github.com/observingClouds/ecmwfspec/pull/19)
 - Add caching of file listings for faster look-ups [#18](https://github.com/observingClouds/ecmwfspec/pull/18)

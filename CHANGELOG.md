@@ -1,6 +1,8 @@
 # Changelog
 
 ## unreleased
+- Dependebot version update of fsspec [#21](https://github.com/observingClouds/ecmwfspec/pull/21)
+- Fix pre-commit docformatter hook [#19](https://github.com/observingClouds/ecmwfspec/pull/19)
 - Add caching of file listings for faster look-ups [#18](https://github.com/observingClouds/ecmwfspec/pull/18)
 - Add support for recursive file listings (`ls -R`) [#18](https://github.com/observingClouds/ecmwfspec/pull/18)
 - Fix `isdir()` function call [#15](https://github.com/observingClouds/ecmwfspec/pull/15)

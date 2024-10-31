@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 0.0.3
 - Fix registration of ectmp file protocol [#22](https://github.com/observingClouds/ecmwfspec/pull/22)
 - Enable file listing cache for ectmp [#22](https://github.com/observingClouds/ecmwfspec/pull/22)
 - Dependebot version update of fsspec [#21](https://github.com/observingClouds/ecmwfspec/pull/21)

@@ -19,7 +19,7 @@ tests = [
     "numpy",
     "pandas",
     "xarray",
-    "zarr",
+    "zarr<3.0.0",
     "pytest",
     "pytest-cov",
 ]

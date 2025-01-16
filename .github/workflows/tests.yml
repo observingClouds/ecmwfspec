@@ -25,7 +25,7 @@ jobs:
       with:
         auto-update-conda: false
         channels: conda-forge
-        miniforge-variant: Mambaforge
+        miniforge-version: latest
         activate-environment: test
         python-version: ${{ matrix.python-version }}
 

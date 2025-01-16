@@ -8,7 +8,7 @@ dependencies = [
     "dask",
     "universal-pathlib",
     "typing_extensions; python_version<'3.11'",
-    "xarray"
+    "xarray<=2024.11.0"
 ]
 
 [project.optional-dependencies]

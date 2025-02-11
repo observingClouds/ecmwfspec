@@ -82,7 +82,7 @@ def ls(
                 current_dir = line.rstrip(":")
             elif line.startswith("total"):
                 continue
-            elif line.endswith(" .") or line.endswith(" .."):
+            elif line.endswith(" .."):
                 continue
             else:
                 details = line.split()

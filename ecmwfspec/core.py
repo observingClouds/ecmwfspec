@@ -274,6 +274,7 @@ class ECFileSystem(AbstractFileSystem):
         touch: bool = True,
         delay: int = 2,
         override: bool = False,
+        _file_queue: Queue[Tuple[str, str]] = FileQueue,
         **storage_options: Any,
     ):
         super().__init__(
@@ -316,6 +317,7 @@ class ECFileSystem(AbstractFileSystem):
                 "path",
             ]
         )
+        self._file_queue = _file_queue
 
     @overload
     def ls(
@@ -411,6 +413,39 @@ class ECFileSystem(AbstractFileSystem):
         except:  # noqa: E722
             # any exception allowed bar FileNotFoundError?
             return False
+    
+    def _retrieve_items(self, retrieve_files: list[tuple[str, str]]) -> None:
+        """Get items from the tape archive."""
+
+        retrieval_requests: List[str] = list()
+        logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
+        for inp_file, _ in retrieve_files:
+            retrieval_requests.append(inp_file)
+        for file in retrieval_requests:
+            logger.debug("Retrieving file: %s", file)
+            local_path = self.ec_cache / Path(file.strip("/"))
+            ecfs.cp("ec:" + file, str(local_path))
+            local_path.chmod(self.file_permissions)
+    
+    def retrieve(self) -> None:
+        """Retrieve queued files."""
+        items = []
+        if self._file_queue.qsize() > 0:
+            self._file_queue.put(("finish", "finish"))
+            for _ in range(self._file_queue.qsize() - 1):
+                items.append(self._file_queue.get())
+                self._file_queue.task_done()
+            try:
+                self._retrieve_items(items)
+            except Exception as error:
+                _ = [
+                    self._file_queue.get() for _ in range(self._file_queue.qsize())
+                ]
+                self._file_queue.task_done()
+                raise error
+            _ = self._file_queue.get()
+            self._file_queue.task_done()
+        self._file_queue.join()
 
     def _open(
         self,

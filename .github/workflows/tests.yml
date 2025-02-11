@@ -20,26 +20,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up conda
-      uses: conda-incubator/setup-miniconda@v2.2.0
+    - name: Set up package manager 'uv'
+      uses: astral-sh/setup-uv@v5
       with:
-        auto-update-conda: false
-        channels: conda-forge
-        miniforge-version: latest
-        activate-environment: test
         python-version: ${{ matrix.python-version }}
 
-    - name: Install package
-      run: pip install -e .[tests]
-
-    - name: Conda info
-      run: conda info
-
-    - name: Conda list
-      run: conda list
+    - name: Install the project
+      run: uv sync --all-extras --dev
 
     - name: Test with pytest
-      run: pytest
+      run: uv run pytest
 
     - name: Run coverage tests
-      run: pytest --cov=ecmwfspec --cov-fail-under=50
+      run: uv run pytest --cov=ecmwfspec --cov-fail-under=50

@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 0.0.4
 - Fix listing of files in CWD in recursive mode [#29](https://github.com/observingClouds/ecmwfspec/pull/29)
 - Use uv as package manager to reduce CI times [#32](https://github.com/observingClouds/ecmwfspec/pull/32)
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## unreleased
+- Fix listing of files in CWD in recursive mode [#29](https://github.com/observingClouds/ecmwfspec/pull/29)
+
 ## 0.0.3
 - Fix CI: sunsetting mambaforge [#26](https://github.com/observingClouds/ecmwfspec/pull/26)
 - Fix registration of ectmp file protocol [#22](https://github.com/observingClouds/ecmwfspec/pull/22)

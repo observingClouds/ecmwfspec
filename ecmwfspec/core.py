@@ -414,7 +414,7 @@ class ECFileSystem(AbstractFileSystem):
 
     def owner(self, path: str | Path, **kwargs: Any) -> str:
         details = ecfs.ls(str(path), detail=True, recursive=False)
-        return details['owner'].values.item(0)
+        return details["owner"].values.item(0)
 
     def _open(
         self,

@@ -515,10 +515,10 @@ class ECFSTmpPath(UPath):
         if not path.startswith("/TMP/"):
             path = "/TMP/" + path
 
-    def owner(self) -> str:
-        owner = self.fs.owner(self)
-        return owner
-
         # self.protocol = "ec"
 
         return path
+
+    def owner(self) -> str:
+        owner = self.fs.owner(self)
+        return owner

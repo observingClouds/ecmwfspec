@@ -412,6 +412,10 @@ class ECFileSystem(AbstractFileSystem):
             # any exception allowed bar FileNotFoundError?
             return False
 
+    def owner(self, path: str | Path, **kwargs: Any) -> str:
+        details = ecfs.ls(str(path), detail=True, recursive=False)
+        return details["owner"].values.item(0)
+
     def _open(
         self,
         path: str | Path,
@@ -498,6 +502,10 @@ class ECFSPath(UPath):
 
         return path
 
+    def owner(self) -> str:
+        owner = self.fs.owner(self)
+        return owner
+
 
 class ECFSTmpPath(UPath):
     @property
@@ -510,3 +518,7 @@ class ECFSTmpPath(UPath):
         # self.protocol = "ec"
 
         return path
+
+    def owner(self) -> str:
+        owner = self.fs.owner(self)
+        return owner

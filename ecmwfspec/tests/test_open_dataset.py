@@ -39,9 +39,8 @@ def test_xr_accessor(patch_dir: Path, zarr_file: Path) -> None:
         patch_dir, urls[0].replace("ec:///", ""), "precip"
     )
     assert dataset["precip"]._in_memory is False, "dataset has been loaded into memory"
-    assert (
-        os.path.exists(path_to_precip_chunks) is False
-    ), "zarr directory exists, though chunks should not exist yet"
+    msg = "zarr store exists, though chunks should not exist yet"
+    assert os.path.exists(path_to_precip_chunks) is False, msg
     dataset["precip"].ecfs.stage()
     assert dataset["precip"]._in_memory is False, "dataset has been loaded into memory"
     assert os.path.exists(path_to_precip_chunks), "chunks were not requested"

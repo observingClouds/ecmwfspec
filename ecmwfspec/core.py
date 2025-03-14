@@ -196,7 +196,7 @@ class ECFile(io.IOBase):
     def peek(self, size: int = 0) -> bytes:
         if self._file_obj is None:
             self._cache_files()
-        return self._file_obj.peek(size)
+        return self._file_obj.peek(size)  # type: ignore
 
     @staticmethod
     def readable() -> Literal[True]:

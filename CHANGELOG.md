@@ -1,5 +1,8 @@
 # Changelog
 
+## unreleased
+- Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)
+
 ## 0.0.5
 - Add functionality to get owner name via `UPath(path).owner` [#33](https://github.com/observingClouds/ecmwfspec/pull/33)
 

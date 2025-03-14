@@ -192,7 +192,7 @@ class ECFile(io.IOBase):
         if self._file_obj is None:
             self._cache_files()
         return self._file_obj.seek(target, whence)  # type: ignore
-    
+
     def peek(self, size: int = 0) -> bytes:
         if self._file_obj is None:
             self._cache_files()

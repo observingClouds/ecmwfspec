@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)
 
 ## 0.0.5

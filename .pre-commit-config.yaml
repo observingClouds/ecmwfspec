@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/PyCQA/docformatter
-    rev: master # https://github.com/PyCQA/docformatter/issues/293
+    rev: master  # https://github.com/PyCQA/docformatter/issues/293
     hooks:
       - id: docformatter
         args: [--in-place]

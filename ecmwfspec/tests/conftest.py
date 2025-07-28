@@ -220,7 +220,6 @@ def netcdf_files(
     data: xr.Dataset,
 ) -> Generator[Path, None, None]:
     """Save data with a blob to file."""
-
     with TemporaryDirectory() as td:
         for time in (data.time[:2], data.time[2:]):
             time1 = pd.Timestamp(time.values[0]).strftime("%Y%m%d%H%M")
@@ -242,7 +241,6 @@ def zarr_file(
     data: xr.Dataset,
 ) -> Generator[Path, None, None]:
     """Save data with a blob to file."""
-
     with TemporaryDirectory() as td:
         out_file = Path(td) / "the_project" / "test1" / "precip" / "precip.zarr"
         out_file.parent.mkdir(exist_ok=True, parents=True)

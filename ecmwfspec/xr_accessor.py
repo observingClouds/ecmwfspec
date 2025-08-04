@@ -98,6 +98,7 @@ class ecfs:
             Dask task graph with additional connections
         """
 
+
         def do_nothing(x: Any) -> None:
             return
 

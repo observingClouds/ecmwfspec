@@ -145,7 +145,6 @@ class ECFile(io.IOBase):
 
     def _retrieve_items(self, retrieve_files: list[tuple[str, str]]) -> None:
         """Get items from the tape archive."""
-
         retrieval_requests: List[str] = list()
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
         for inp_file, _ in retrieve_files:

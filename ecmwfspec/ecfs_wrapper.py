@@ -58,8 +58,14 @@ def ls(
                 "month",
                 "day",
                 "time",
-                "extended",
                 "path",
+                "offline",
+                "backup",
+                "staged",
+                "safety",
+                "volser",
+                "offset",
+                "fileno",
             ]
         else:
             columns = [
@@ -123,7 +129,7 @@ def ls(
 
     if extended:
         # extract volser
-        df['tape'] = df['extended'].str.extract(r'volser=(\w+)')
+        df['tape'] = df['volser'].str.extract(r'volser=(\w+)')
         df = df.sort_values('tape')
 
     return df

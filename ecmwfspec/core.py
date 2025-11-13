@@ -338,7 +338,7 @@ class ECFileSystem(AbstractFileSystem):
         self.override = override
         self.delay = delay
         self.file_permissions = file_permissions
-        self.order = ec_options.get("order", None)
+        self.order = storage_options.get("order", ec_options.get("order", None))
         self.file_listing_cache: pd.DataFrame = pd.DataFrame(
             columns=[
                 "permissions",
@@ -505,7 +505,7 @@ class ECTmpFileSystem(ECFileSystem):
             **storage_options,
         )
         ec_options = storage_options.get("ec", {})
-        self.order = ec_options.get("order", None)
+        self.order = storage_options.get("order", ec_options.get("order", None))
 
     def _open(
         self,

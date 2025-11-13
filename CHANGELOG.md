@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+- Expand wildcards in retrieve method.
+- Add option to retrieve files in tape order.
+
 ## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)
 

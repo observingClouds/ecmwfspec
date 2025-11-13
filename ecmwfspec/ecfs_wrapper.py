@@ -128,7 +128,6 @@ def ls(
     df = pd.DataFrame(files, columns=columns)
 
     if extended:
-        # extract volser
         df['tape'] = df['volser'].str.extract(r'volser=(\w+)')
         df = df.sort_values('tape')
 

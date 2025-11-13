@@ -27,11 +27,13 @@ def ls(
     elif isinstance(path, UPath):
         path = path.path
 
-    if order == 'tape':
+    if order == "tape":
         if not detail:
             raise ValueError("tape ordering requires detailed listing")
         if recursive:
-            raise NotImplementedError("tape ordering not supported for recursive listing")
+            raise NotImplementedError(
+                "tape ordering not supported for recursive listing"
+            )
         extended = True
     else:
         extended = False
@@ -128,8 +130,8 @@ def ls(
     df = pd.DataFrame(files, columns=columns)
 
     if extended:
-        df['tape'] = df['volser'].str.extract(r'volser=(\w+)')
-        df = df.sort_values('tape')
+        df["tape"] = df["volser"].str.extract(r"volser=(\w+)")
+        df = df.sort_values("tape")
 
     return df
 

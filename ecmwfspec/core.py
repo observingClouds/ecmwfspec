@@ -34,7 +34,7 @@ logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
@@ -137,7 +137,7 @@ class ECFile(io.IOBase):
         self.write_through = False
         self.delay = delay
         self._file_queue = _file_queue
-        self.order = 'tape'
+        self.order = "tape"
         print(self._file)
         with _lock:
             if not Path(self._file).exists() or override:
@@ -163,9 +163,13 @@ class ECFile(io.IOBase):
         # Expand wildcards in file paths
         all_files = []
         for inp_file, _ in retrieve_files:
-            if '*' in inp_file:
+            if "*" in inp_file:
                 files_df = ecfs.ls(inp_file)
-                files = files_df['path'].tolist() if 'path' in files_df.columns else files_df.tolist()
+                files = (
+                    files_df["path"].tolist()
+                    if "path" in files_df.columns
+                    else files_df.tolist()
+                )
                 # Make absolute paths
                 base_dir = Path(inp_file).parent
                 full_files = [str(base_dir / f) for f in files]
@@ -175,19 +179,23 @@ class ECFile(io.IOBase):
 
         logger.debug("Expanded to %i files", len(all_files))
 
-        if self.order == 'tape':
+        if self.order == "tape":
             # Group files by tape for efficient retrieval
             tape_files = []
             for inp_file in all_files:
                 try:
-                    df = ecfs.ls(inp_file, detail=True, order='tape')
-                    tape = df['tape'].iloc[0] if not df.empty and 'tape' in df.columns else None
+                    df = ecfs.ls(inp_file, detail=True, order="tape")
+                    tape = (
+                        df["tape"].iloc[0]
+                        if not df.empty and "tape" in df.columns
+                        else None
+                    )
                 except:
                     tape = None
                 tape_files.append((tape, inp_file))
 
             # Sort by tape to group retrievals
-            tape_files.sort(key=lambda x: x[0] or '')
+            tape_files.sort(key=lambda x: x[0] or "")
 
             for tape, inp_file in tape_files:
                 logger.debug("Retrieving file: %s (tape: %s)", inp_file, tape)
@@ -429,12 +437,14 @@ class ECFileSystem(AbstractFileSystem):
                 self.file_listing_cache["path"] == str(path)
             ]
         if filelist.empty:
-            order = kwargs.get('order') or self.order
-            filelist = ecfs.ls(str(url), detail=detail, recursive=recursive, order=order)
+            order = kwargs.get("order") or self.order
+            filelist = ecfs.ls(
+                str(url), detail=detail, recursive=recursive, order=order
+            )
             if self.protocol == "ectmp":
                 filelist.path = filelist.path.str.replace("/TMP", "")
             if (
-                recursive and order != 'tape'
+                recursive and order != "tape"
             ):  # only in case of recursive to ensure subdirectories are added to cache, but not for tape
                 self.file_listing_cache = pd.concat(
                     [self.file_listing_cache, filelist], ignore_index=True
@@ -449,7 +459,7 @@ class ECFileSystem(AbstractFileSystem):
                 "name": str(path / file_entry.path),
                 "size": file_entry.size,
                 "type": types[file_entry.permissions[0]] if detail else None,
-                "tape": file_entry.get('tape', None),
+                "tape": file_entry.get("tape", None),
             }
             for _, file_entry in filelist.iterrows()
         ]

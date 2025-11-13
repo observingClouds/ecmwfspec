@@ -30,6 +30,14 @@ from . import ecfs_wrapper as ecfs
 logger = logging.getLogger("ecmwfspec")
 logger.setLevel(logging.DEBUG)
 
+# Add a console handler if not already present
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
 
 MAX_RETRIES = 2
 FileQueue: Queue[Tuple[str, str]] = Queue(maxsize=-1)

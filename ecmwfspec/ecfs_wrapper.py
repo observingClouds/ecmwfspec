@@ -3,7 +3,7 @@
 import logging
 import subprocess
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import pandas as pd
 from upath import UPath
@@ -17,6 +17,7 @@ def ls(
     allfiles: bool = False,
     recursive: bool = False,
     directory: bool = False,
+    order: Optional[str] = None,
 ) -> pd.DataFrame:
     """List files in a directory."""
     if isinstance(path, Path):
@@ -25,6 +26,15 @@ def ls(
         path = path
     elif isinstance(path, UPath):
         path = path.path
+
+    if order == 'tape':
+        if not detail:
+            raise ValueError("tape ordering requires detailed listing")
+        if recursive:
+            raise NotImplementedError("tape ordering not supported for recursive listing")
+        extended = True
+    else:
+        extended = False
 
     command = ["els", path.replace("ec:", "ec:/").replace("ectmp:", "ectmp:/")]
     columns = ["path"]
@@ -38,17 +48,34 @@ def ls(
 
     if detail:
         command.insert(-1, "-l")
-        columns = [
-            "permissions",
-            "links",
-            "owner",
-            "group",
-            "size",
-            "month",
-            "day",
-            "time",
-            "path",
-        ]
+        if extended:
+            columns = [
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+                "extended",
+            ]
+        else:
+            columns = [
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+            ]
+
+    if extended:
+        command.insert(-1, "-E")
 
     if allfiles:
         command.insert(-1, "-a")
@@ -73,7 +100,10 @@ def ls(
     result_lines = [f for f in result_lines if f != ""]
 
     if detail and not recursive:
-        files = [f.split() for f in result_lines]
+        if extended:
+            files = [line.split(None, 9) for line in result_lines]  # split into 10 parts
+        else:
+            files = [f.split() for f in result_lines]
     elif recursive:
         files = []
         current_dir = path.replace("ec:", "").replace("ectmp:", "")
@@ -93,6 +123,11 @@ def ls(
         files = result_lines  # type: ignore
 
     df = pd.DataFrame(files, columns=columns)
+
+    if extended:
+        # extract volser
+        df['tape'] = df['extended'].str.extract(r'volser=(\w+)')
+        df = df.sort_values('tape')
 
     return df
 

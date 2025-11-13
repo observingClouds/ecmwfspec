@@ -180,6 +180,7 @@ class ECFile(io.IOBase):
             tape_files = []
             for inp_file in all_files:
                 try:
+                    import ipdb; ipdb.set_trace()
                     df = ecfs.ls(inp_file, detail=True, order='tape')
                     tape = df['tape'].iloc[0] if not df.empty and 'tape' in df.columns else None
                 except:

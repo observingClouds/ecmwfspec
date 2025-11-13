@@ -159,28 +159,40 @@ class ECFile(io.IOBase):
 
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
 
+        # Expand wildcards in file paths
+        all_files = []
+        for inp_file, _ in retrieve_files:
+            if '*' in inp_file:
+                files_df = ecfs.ls(inp_file)
+                files = files_df['path'].tolist() if 'path' in files_df.columns else files_df.tolist()
+                all_files.extend(files)
+            else:
+                all_files.append(inp_file)
+
+        logger.debug("Expanded to %i files", len(all_files))
+
         if self.order == 'tape':
             # Group files by tape for efficient retrieval
             tape_files = []
-            for inp_file, local_path in retrieve_files:
+            for inp_file in all_files:
                 try:
                     df = ecfs.ls(inp_file, detail=True, order='tape')
                     tape = df['tape'].iloc[0] if not df.empty and 'tape' in df.columns else None
                 except:
                     tape = None
-                tape_files.append((tape, inp_file, local_path))
+                tape_files.append((tape, inp_file))
 
             # Sort by tape to group retrievals
             tape_files.sort(key=lambda x: x[0] or '')
 
-            for tape, inp_file, _ in tape_files:
+            for tape, inp_file in tape_files:
                 logger.debug("Retrieving file: %s (tape: %s)", inp_file, tape)
                 local_path = self.ec_cache / Path(inp_file.strip("/"))
                 ecfs.cp("ec:" + inp_file, str(local_path))
                 local_path.chmod(self.file_permissions)
         else:
             # Normal retrieval without tape grouping
-            for inp_file, _ in retrieve_files:
+            for inp_file in all_files:
                 logger.debug("Retrieving file: %s", inp_file)
                 local_path = self.ec_cache / Path(inp_file.strip("/"))
                 ecfs.cp("ec:" + inp_file, str(local_path))

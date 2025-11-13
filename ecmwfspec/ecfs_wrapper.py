@@ -58,8 +58,8 @@ def ls(
                 "month",
                 "day",
                 "time",
-                "path",
                 "extended",
+                "path",
             ]
         else:
             columns = [
@@ -100,10 +100,7 @@ def ls(
     result_lines = [f for f in result_lines if f != ""]
 
     if detail and not recursive:
-        if extended:
-            files = [line.split(None, 9) for line in result_lines]  # split into 10 parts
-        else:
-            files = [f.split() for f in result_lines]
+        files = [f.split() for f in result_lines]
     elif recursive:
         files = []
         current_dir = path.replace("ec:", "").replace("ectmp:", "")

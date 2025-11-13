@@ -104,6 +104,7 @@ class ECFile(io.IOBase):
         touch: bool = True,
         file_permissions: int = 0o3777,
         delay: int = 2,
+        order: Optional[str] = None,
         _lock: threading.Lock = _retrieval_lock,
         _file_queue: Queue[Tuple[str, str]] = FileQueue,
         **kwargs: Any,
@@ -128,7 +129,7 @@ class ECFile(io.IOBase):
         self.write_through = False
         self.delay = delay
         self._file_queue = _file_queue
-        self.order = kwargs.get("order")
+        self.order = order
         print(self._file)
         with _lock:
             if not Path(self._file).exists() or override:

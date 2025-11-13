@@ -158,6 +158,7 @@ class ECFile(io.IOBase):
         """Get items from the tape archive."""
 
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
+        logger.debug("Files: %s", retrieve_files)
 
         # Expand wildcards in file paths
         all_files = []
@@ -165,7 +166,10 @@ class ECFile(io.IOBase):
             if '*' in inp_file:
                 files_df = ecfs.ls(inp_file)
                 files = files_df['path'].tolist() if 'path' in files_df.columns else files_df.tolist()
-                all_files.extend(files)
+                # Make absolute paths
+                base_dir = Path(inp_file).parent
+                full_files = [str(base_dir / f) for f in files]
+                all_files.extend(full_files)
             else:
                 all_files.append(inp_file)
 

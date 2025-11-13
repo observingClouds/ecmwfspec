@@ -128,6 +128,7 @@ class ECFile(io.IOBase):
         self.write_through = False
         self.delay = delay
         self._file_queue = _file_queue
+        self.order = kwargs.get("order")
         print(self._file)
         with _lock:
             if not Path(self._file).exists() or override:
@@ -147,15 +148,34 @@ class ECFile(io.IOBase):
     def _retrieve_items(self, retrieve_files: list[tuple[str, str]]) -> None:
         """Get items from the tape archive."""
 
-        retrieval_requests: List[str] = list()
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
-        for inp_file, _ in retrieve_files:
-            retrieval_requests.append(inp_file)
-        for file in retrieval_requests:
-            logger.debug("Retrieving file: %s", file)
-            local_path = self.ec_cache / Path(file.strip("/"))
-            ecfs.cp("ec:" + file, str(local_path))
-            local_path.chmod(self.file_permissions)
+
+        if self.order == 'tape':
+            # Group files by tape for efficient retrieval
+            tape_files = []
+            for inp_file, local_path in retrieve_files:
+                try:
+                    df = ecfs.ls(inp_file, detail=True, order='tape')
+                    tape = df['tape'].iloc[0] if not df.empty and 'tape' in df.columns else None
+                except:
+                    tape = None
+                tape_files.append((tape, inp_file, local_path))
+
+            # Sort by tape to group retrievals
+            tape_files.sort(key=lambda x: x[0] or '')
+
+            for tape, inp_file, _ in tape_files:
+                logger.debug("Retrieving file: %s (tape: %s)", inp_file, tape)
+                local_path = self.ec_cache / Path(inp_file.strip("/"))
+                ecfs.cp("ec:" + inp_file, str(local_path))
+                local_path.chmod(self.file_permissions)
+        else:
+            # Normal retrieval without tape grouping
+            for inp_file, _ in retrieve_files:
+                logger.debug("Retrieving file: %s", inp_file)
+                local_path = self.ec_cache / Path(inp_file.strip("/"))
+                ecfs.cp("ec:" + inp_file, str(local_path))
+                local_path.chmod(self.file_permissions)
 
     def _cache_files(self) -> None:
         time.sleep(self.delay)
@@ -447,6 +467,7 @@ class ECFileSystem(AbstractFileSystem):
             delay=self.delay,
             encoding=kwargs.get("encoding"),
             file_permissions=self.file_permissions,
+            order=self.order,
         )
 
 
@@ -501,6 +522,7 @@ class ECTmpFileSystem(ECFileSystem):
             delay=self.delay,
             encoding=kwargs.get("encoding"),
             file_permissions=self.file_permissions,
+            order=self.order,
         )
 
 

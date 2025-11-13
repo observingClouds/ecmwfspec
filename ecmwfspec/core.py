@@ -39,6 +39,7 @@ class FileInfo(TypedDict):
     name: str
     size: Optional[int]
     type: Optional[str]
+    tape: Optional[str]
 
 
 _retrieval_lock = threading.Lock()
@@ -308,6 +309,7 @@ class ECFileSystem(AbstractFileSystem):
         self.override = override
         self.delay = delay
         self.file_permissions = file_permissions
+        self.order = ec_options.get("order", None)
         self.file_listing_cache: pd.DataFrame = pd.DataFrame(
             columns=[
                 "permissions",
@@ -319,6 +321,7 @@ class ECFileSystem(AbstractFileSystem):
                 "day",
                 "time",
                 "path",
+                "tape",
             ]
         )
 
@@ -381,12 +384,13 @@ class ECFileSystem(AbstractFileSystem):
                 self.file_listing_cache["path"] == str(path)
             ]
         if filelist.empty:
-            filelist = ecfs.ls(str(url), detail=detail, recursive=recursive)
+            order = kwargs.get('order') or self.order
+            filelist = ecfs.ls(str(url), detail=detail, recursive=recursive, order=order)
             if self.protocol == "ectmp":
                 filelist.path = filelist.path.str.replace("/TMP", "")
             if (
-                recursive
-            ):  # only in case of recursive to ensure subdirectories are added to cache
+                recursive and order != 'tape'
+            ):  # only in case of recursive to ensure subdirectories are added to cache, but not for tape
                 self.file_listing_cache = pd.concat(
                     [self.file_listing_cache, filelist], ignore_index=True
                 )
@@ -400,6 +404,7 @@ class ECFileSystem(AbstractFileSystem):
                 "name": str(path / file_entry.path),
                 "size": file_entry.size,
                 "type": types[file_entry.permissions[0]] if detail else None,
+                "tape": file_entry.get('tape', None),
             }
             for _, file_entry in filelist.iterrows()
         ]
@@ -469,6 +474,8 @@ class ECTmpFileSystem(ECFileSystem):
             override=override,
             **storage_options,
         )
+        ec_options = storage_options.get("ec", {})
+        self.order = ec_options.get("order", None)
 
     def _open(
         self,

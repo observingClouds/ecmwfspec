@@ -137,7 +137,7 @@ class ECFile(io.IOBase):
         self.write_through = False
         self.delay = delay
         self._file_queue = _file_queue
-        self.order = order
+        self.order = 'tape'
         print(self._file)
         with _lock:
             if not Path(self._file).exists() or override:

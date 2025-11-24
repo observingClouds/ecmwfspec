@@ -3,7 +3,7 @@
 import logging
 import subprocess
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import pandas as pd
 from upath import UPath
@@ -17,6 +17,7 @@ def ls(
     allfiles: bool = False,
     recursive: bool = False,
     directory: bool = False,
+    order: Optional[str] = None,
 ) -> pd.DataFrame:
     """List files in a directory."""
     if isinstance(path, Path):
@@ -25,6 +26,17 @@ def ls(
         path = path
     elif isinstance(path, UPath):
         path = path.path
+
+    if order == "tape":
+        if not detail:
+            raise ValueError("tape ordering requires detailed listing")
+        if recursive:
+            raise NotImplementedError(
+                "tape ordering not supported for recursive listing"
+            )
+        extended = True
+    else:
+        extended = False
 
     command = ["els", path.replace("ec:", "ec:/").replace("ectmp:", "ectmp:/")]
     columns = ["path"]
@@ -38,17 +50,40 @@ def ls(
 
     if detail:
         command.insert(-1, "-l")
-        columns = [
-            "permissions",
-            "links",
-            "owner",
-            "group",
-            "size",
-            "month",
-            "day",
-            "time",
-            "path",
-        ]
+        if extended:
+            columns = [
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+                "offline",
+                "backup",
+                "staged",
+                "safety",
+                "volser",
+                "offset",
+                "fileno",
+            ]
+        else:
+            columns = [
+                "permissions",
+                "links",
+                "owner",
+                "group",
+                "size",
+                "month",
+                "day",
+                "time",
+                "path",
+            ]
+
+    if extended:
+        command.insert(-1, "-E")
 
     if allfiles:
         command.insert(-1, "-a")
@@ -93,6 +128,10 @@ def ls(
         files = result_lines  # type: ignore
 
     df = pd.DataFrame(files, columns=columns)
+
+    if extended:
+        df["tape"] = df["volser"].str.extract(r"volser=(\w+)")
+        df = df.sort_values("tape")
 
     return df
 

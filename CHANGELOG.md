@@ -1,5 +1,8 @@
 # Changelog
 
+## unreleased
+- Move test dependencies to development group. [#58](https://github.com/observingClouds/ecmwfspec/pull/58)
+
 ## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)
 

@@ -11,7 +11,7 @@ dependencies = [
     "xarray<=2024.11.0"
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 tests = [
     "mock",
     "pre-commit",

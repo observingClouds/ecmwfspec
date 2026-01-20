@@ -1,8 +1,7 @@
 # Changelog
 
-## [Unreleased]
-- Expand wildcards in retrieve method.
-- Add option to retrieve files in tape order.
+## unreleased
+- Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)
 - Move test dependencies to development group. [#58](https://github.com/observingClouds/ecmwfspec/pull/58)
 
 ## 0.0.6

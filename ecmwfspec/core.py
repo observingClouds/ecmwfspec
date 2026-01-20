@@ -30,6 +30,14 @@ from . import ecfs_wrapper as ecfs
 logger = logging.getLogger("ecmwfspec")
 logger.setLevel(logging.DEBUG)
 
+# Add a console handler if not already present
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
 
 MAX_RETRIES = 2
 FileQueue: Queue[Tuple[str, str]] = Queue(maxsize=-1)
@@ -39,6 +47,7 @@ class FileInfo(TypedDict):
     name: str
     size: Optional[int]
     type: Optional[str]
+    tape: Optional[str]
 
 
 _retrieval_lock = threading.Lock()
@@ -103,6 +112,7 @@ class ECFile(io.IOBase):
         touch: bool = True,
         file_permissions: int = 0o3777,
         delay: int = 2,
+        order: Optional[str] = None,
         _lock: threading.Lock = _retrieval_lock,
         _file_queue: Queue[Tuple[str, str]] = FileQueue,
         **kwargs: Any,
@@ -127,6 +137,7 @@ class ECFile(io.IOBase):
         self.write_through = False
         self.delay = delay
         self._file_queue = _file_queue
+        self.order = "tape"
         print(self._file)
         with _lock:
             if not Path(self._file).exists() or override:
@@ -146,15 +157,58 @@ class ECFile(io.IOBase):
     def _retrieve_items(self, retrieve_files: list[tuple[str, str]]) -> None:
         """Get items from the tape archive."""
 
-        retrieval_requests: List[str] = list()
         logger.debug("Retrieving %i items from ECFS", len(retrieve_files))
+        logger.debug("Files: %s", retrieve_files)
+
+        # Expand wildcards in file paths
+        all_files = []
         for inp_file, _ in retrieve_files:
-            retrieval_requests.append(inp_file)
-        for file in retrieval_requests:
-            logger.debug("Retrieving file: %s", file)
-            local_path = self.ec_cache / Path(file.strip("/"))
-            ecfs.cp("ec:" + file, str(local_path))
-            local_path.chmod(self.file_permissions)
+            if "*" in inp_file:
+                files_df = ecfs.ls(inp_file)
+                files = (
+                    files_df["path"].tolist()
+                    if "path" in files_df.columns
+                    else files_df.tolist()
+                )
+                # Make absolute paths
+                base_dir = Path(inp_file).parent
+                full_files = [str(base_dir / f) for f in files]
+                all_files.extend(full_files)
+            else:
+                all_files.append(inp_file)
+
+        logger.debug("Expanded to %i files", len(all_files))
+
+        if self.order == "tape":
+            # Group files by tape for efficient retrieval
+            tape_files = []
+            for inp_file in all_files:
+                try:
+                    df = ecfs.ls(inp_file, detail=True, order="tape")
+                    tape = (
+                        df["tape"].iloc[0]
+                        if not df.empty and "tape" in df.columns
+                        else None
+                    )
+                except Exception:
+                    tape = None
+                tape_files.append((tape, inp_file))
+
+            # Sort by tape to group retrievals
+            tape_files.sort(key=lambda x: x[0] or "")
+
+            for tape, inp_file in tape_files:
+                logger.debug("Retrieving file: %s (tape: %s)", inp_file, tape)
+                local_path = self.ec_cache / Path(inp_file.strip("/"))
+                ecfs.cp("ec:" + inp_file, str(local_path))
+                local_path.chmod(self.file_permissions)
+        else:
+            # Normal retrieval without tape grouping
+            for inp_file in all_files:
+                logger.debug("Retrieving file: %s", inp_file)
+                local_path = self.ec_cache / Path(inp_file.strip("/"))
+                ecfs.cp("ec:" + inp_file, str(local_path))
+                local_path.chmod(self.file_permissions)
 
     def _cache_files(self) -> None:
         time.sleep(self.delay)
@@ -308,6 +362,7 @@ class ECFileSystem(AbstractFileSystem):
         self.override = override
         self.delay = delay
         self.file_permissions = file_permissions
+        self.order = storage_options.get("order", ec_options.get("order", None))
         self.file_listing_cache: pd.DataFrame = pd.DataFrame(
             columns=[
                 "permissions",
@@ -319,6 +374,7 @@ class ECFileSystem(AbstractFileSystem):
                 "day",
                 "time",
                 "path",
+                "tape",
             ]
         )
 
@@ -381,12 +437,15 @@ class ECFileSystem(AbstractFileSystem):
                 self.file_listing_cache["path"] == str(path)
             ]
         if filelist.empty:
-            filelist = ecfs.ls(str(url), detail=detail, recursive=recursive)
+            order = kwargs.get("order") or self.order
+            filelist = ecfs.ls(
+                str(url), detail=detail, recursive=recursive, order=order
+            )
             if self.protocol == "ectmp":
                 filelist.path = filelist.path.str.replace("/TMP", "")
             if (
-                recursive
-            ):  # only in case of recursive to ensure subdirectories are added to cache
+                recursive and order != "tape"
+            ):  # only in case of recursive to ensure subdirectories are added to cache, but not for tape
                 self.file_listing_cache = pd.concat(
                     [self.file_listing_cache, filelist], ignore_index=True
                 )
@@ -400,6 +459,7 @@ class ECFileSystem(AbstractFileSystem):
                 "name": str(path / file_entry.path),
                 "size": file_entry.size,
                 "type": types[file_entry.permissions[0]] if detail else None,
+                "tape": file_entry.get("tape", None),
             }
             for _, file_entry in filelist.iterrows()
         ]
@@ -442,6 +502,7 @@ class ECFileSystem(AbstractFileSystem):
             delay=self.delay,
             encoding=kwargs.get("encoding"),
             file_permissions=self.file_permissions,
+            order=self.order,
         )
 
 
@@ -469,6 +530,8 @@ class ECTmpFileSystem(ECFileSystem):
             override=override,
             **storage_options,
         )
+        ec_options = storage_options.get("ec", {})
+        self.order = storage_options.get("order", ec_options.get("order", None))
 
     def _open(
         self,
@@ -494,6 +557,7 @@ class ECTmpFileSystem(ECFileSystem):
             delay=self.delay,
             encoding=kwargs.get("encoding"),
             file_permissions=self.file_permissions,
+            order=self.order,
         )
 
 

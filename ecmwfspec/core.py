@@ -190,7 +190,7 @@ class ECFile(io.IOBase):
                         if not df.empty and "tape" in df.columns
                         else None
                     )
-                except:
+                except Exception:
                     tape = None
                 tape_files.append((tape, inp_file))
 

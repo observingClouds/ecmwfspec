@@ -39,7 +39,7 @@ class ECMock:
         allfiles: bool = False,
         recursive: bool = False,
         directory: bool = False,
-        order: str = None,
+        order: Union[str, None] = None,
     ) -> pd.DataFrame:
         """List files in a directory."""
         if order == "tape":

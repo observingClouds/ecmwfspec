@@ -39,8 +39,14 @@ class ECMock:
         allfiles: bool = False,
         recursive: bool = False,
         directory: bool = False,
+        order: str = None,
     ) -> pd.DataFrame:
         """List files in a directory."""
+        if order == "tape":
+            extended = True
+        else:
+            extended = False
+
         command = ["ls", inp_path]
         columns = ["path"]
 
@@ -50,17 +56,32 @@ class ECMock:
 
         if detail:
             command.insert(-1, "-l")
-            columns = [
-                "permissions",
-                "links",
-                "owner",
-                "group",
-                "size",
-                "month",
-                "day",
-                "time",
-                "path",
-            ]
+            if extended:
+                # Extended listing for tape ordering
+                columns = [
+                    "permissions",
+                    "links",
+                    "owner",
+                    "group",
+                    "size",
+                    "month",
+                    "day",
+                    "time",
+                    "path",
+                    "tape",
+                ]
+            else:
+                columns = [
+                    "permissions",
+                    "links",
+                    "owner",
+                    "group",
+                    "size",
+                    "month",
+                    "day",
+                    "time",
+                    "path",
+                ]
 
         if allfiles:
             command.insert(-1, "-a")
@@ -80,7 +101,13 @@ class ECMock:
                 if line.startswith("total"):
                     continue
                 else:
-                    files_incl_details.append(line.split())
+                    file_details = line.split()
+                    if extended:
+                        # Add mock tape identifier for extended listing
+                        # Use a hash of the filename to generate a consistent tape name
+                        tape_name = f"TAPE{abs(hash(file_details[-1])) % 100:02d}"
+                        file_details.append(tape_name)
+                    files_incl_details.append(file_details)
             df = pd.DataFrame(files_incl_details, columns=columns)
         elif recursive:
             files_incl_details = []
@@ -100,6 +127,10 @@ class ECMock:
             df = pd.DataFrame(files_incl_details, columns=columns)
         else:
             df = pd.DataFrame(files, columns=columns)
+
+        # Sort by tape if order is "tape"
+        if extended and "tape" in df.columns:
+            df = df.sort_values("tape")
 
         return df
 

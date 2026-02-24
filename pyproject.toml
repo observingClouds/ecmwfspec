@@ -3,6 +3,7 @@ name = "ecmwfspec"
 dynamic = ["version"]
 description = "fsspec implementation for ECMWF File Storage System"
 readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
     "fsspec",
     "dask",

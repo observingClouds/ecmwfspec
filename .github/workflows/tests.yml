@@ -26,10 +26,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install the project
-      run: uv sync --group tests
+      run: uv sync --frozen --group tests
 
     - name: Test with pytest
-      run: uv run pytest
+      run: uv run --frozen pytest
 
     - name: Run coverage tests
-      run: uv run pytest --cov=ecmwfspec --cov-fail-under=50
+      run: uv run --frozen pytest --cov=ecmwfspec --cov-fail-under=50

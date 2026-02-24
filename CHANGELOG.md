@@ -3,6 +3,7 @@
 ## unreleased
 - Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)
 - Move test dependencies to development group. [#58](https://github.com/observingClouds/ecmwfspec/pull/58)
+- Ensure locked versions of dependencies in CI. [#68](https://github.com/observingClouds/ecmwfspec/pull/68)
 
 ## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)

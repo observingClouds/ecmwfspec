@@ -5,6 +5,7 @@
 - Move test dependencies to development group. [#58](https://github.com/observingClouds/ecmwfspec/pull/58)
 - Ensure locked versions of dependencies in CI. [#68](https://github.com/observingClouds/ecmwfspec/pull/68)
 - Make dependabot use uv environment. [#69](https://github.com/observingClouds/ecmwfspec/pull/69)
+- Add changelog entries automatically to dependabot updates. [#74](https://github.com/observingClouds/ecmwfspec/pull/74)
 
 ## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)

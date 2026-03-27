@@ -7,6 +7,10 @@
 - Make dependabot use uv environment. [#69](https://github.com/observingClouds/ecmwfspec/pull/69)
 - Add changelog entries automatically to dependabot updates. [#74](https://github.com/observingClouds/ecmwfspec/pull/74)
 
+### Dependencies
+
+- `[dask](https://github.com/dask/dask)`: 2026.1.2 → 2026.3.0 ([#76](https://github.com/observingClouds/ecmwfspec/pull/76))
+
 ## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)
 

@@ -11,6 +11,7 @@
 
 - `[dask](https://github.com/dask/dask)`: 2026.1.2 → 2026.3.0 ([#76](https://github.com/observingClouds/ecmwfspec/pull/76))
 - `[pytest-cov](https://github.com/pytest-dev/pytest-cov)`: 7.0.0 → 7.1.0 ([#78](https://github.com/observingClouds/ecmwfspec/pull/78))
+- `[fsspec](https://github.com/fsspec/filesystem_spec)`: 2026.2.0 → 2026.3.0 ([#80](https://github.com/observingClouds/ecmwfspec/pull/80))
 
 ## 0.0.6
 - Add `peek` method. [#35](https://github.com/observingClouds/ecmwfspec/pull/35)

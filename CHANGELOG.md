@@ -2,6 +2,10 @@
 
 ## unreleased
 
+### Dependencies
+
+- `[dask](https://github.com/dask/dask)`: 2026.3.0 → 2026.6.0 ([#92](https://github.com/observingClouds/ecmwfspec/pull/92))
+
 ## 0.0.7
 - Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)
 - Move test dependencies to development group. [#58](https://github.com/observingClouds/ecmwfspec/pull/58)

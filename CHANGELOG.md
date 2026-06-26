@@ -6,6 +6,7 @@
 
 - `[dask](https://github.com/dask/dask)`: 2026.3.0 → 2026.6.0 ([#92](https://github.com/observingClouds/ecmwfspec/pull/92))
 - `[fsspec](https://github.com/fsspec/filesystem_spec)`: 2026.4.0 → 2026.6.0 ([#95](https://github.com/observingClouds/ecmwfspec/pull/95))
+- `[pytest](https://github.com/pytest-dev/pytest)`: 9.0.3 → 9.1.1 ([#94](https://github.com/observingClouds/ecmwfspec/pull/94))
 
 ## 0.0.7
 - Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)

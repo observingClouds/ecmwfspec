@@ -9,7 +9,7 @@ repos:
       - id: check-json
       - id: check-yaml
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.3.0
     hooks:
       - id: mypy
         additional_dependencies: [types-mock]
@@ -18,13 +18,13 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.20
+    rev: v0.15.21
     hooks:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.0a3
+    rev: 9.0.0b1
     hooks:
       - id: isort
   - repo: https://github.com/PyCQA/docformatter

@@ -3,7 +3,6 @@
 import logging
 import subprocess
 from pathlib import Path
-from typing import Optional, Union
 
 import pandas as pd
 from upath import UPath
@@ -12,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 def ls(
-    path: Union[str, Path, UPath],
+    path: str | Path | UPath,
     detail: bool = False,
     allfiles: bool = False,
     recursive: bool = False,
     directory: bool = False,
-    order: Optional[str] = None,
+    order: str | None = None,
 ) -> pd.DataFrame:
     """List files in a directory."""
     if isinstance(path, Path):
@@ -115,9 +114,7 @@ def ls(
         for line in result_lines:
             if line.startswith("/"):
                 current_dir = line.rstrip(":")
-            elif line.startswith("total"):
-                continue
-            elif line.endswith(" .."):
+            elif line.startswith("total") or line.endswith(" .."):
                 continue
             else:
                 details = line.split()
@@ -136,7 +133,7 @@ def ls(
     return df
 
 
-def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
+def cp(src: str | Path, dst: str | Path) -> None:
     """Copy a file from src to dst."""
     command = [
         "ecp",
@@ -148,6 +145,4 @@ def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
 
     if result != "":
         logger.error(result)
-        raise Exception("Error running command: {}".format(command))
-
-    return
+        raise Exception(f"Error running command: {command}")

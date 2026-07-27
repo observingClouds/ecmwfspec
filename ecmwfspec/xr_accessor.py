@@ -1,5 +1,5 @@
 from itertools import compress
-from typing import Any, Union
+from typing import Any
 
 import dask
 import dask.array as da
@@ -20,7 +20,7 @@ class ecfs:
     when using e.g.`simplecache` or `ecmwfspec` with EC_CACHE.
     """
 
-    def __init__(self, xarray_obj: Union[xr.Dataset, xr.DataArray]) -> None:
+    def __init__(self, xarray_obj: xr.Dataset | xr.DataArray) -> None:
         self._obj = xarray_obj
 
     def stage(self) -> None:
@@ -28,7 +28,6 @@ class ecfs:
             self._get_dataset()
         elif isinstance(self._obj, xr.DataArray):
             self._get_dataarray()
-        return
 
     def _check_layer(self, key: str, layer: str = "open_dataset") -> bool:
         """Check if dask graph key is part of `layer`
@@ -129,15 +128,12 @@ class ecfs:
             _ = dask.threaded.get(input_graph, "do_nothing_at_all")
         else:
             _ = scheduler(input_graph, "do_nothing_at_all")
-        return
 
     def _get_dataarray(self) -> None:
         """Get_data wrapper for xr.DataArray."""
         self._get_data(self._obj.data)
-        return
 
     def _get_dataset(self) -> None:
         """Get_data wrapper for xr.Dataset."""
         for var in self._obj.data_vars:
             self._get_data(self._obj[var].data)
-        return

@@ -5,12 +5,12 @@ from __future__ import annotations
 import builtins
 import os
 import shutil
+from collections.abc import Generator
 from pathlib import Path
 from subprocess import PIPE, run
 from tempfile import TemporaryDirectory
-from typing import Generator, Union
+from unittest import mock
 
-import mock
 import numpy as np
 import pandas as pd
 import pytest
@@ -34,12 +34,12 @@ class ECMock:
 
     def ls(
         self,
-        inp_path: Union[str, Path],
+        inp_path: str | Path,
         detail: bool = False,
         allfiles: bool = False,
         recursive: bool = False,
         directory: bool = False,
-        order: Union[str, None] = None,
+        order: str | None = None,
     ) -> pd.DataFrame:
         """List files in a directory."""
         if order == "tape":
@@ -119,9 +119,7 @@ class ECMock:
                     continue
                 else:
                     details = line.split()
-                    if current_dir and details[0].startswith("l"):
-                        details.append(current_dir + "/" + details[-1])
-                    elif current_dir:
+                    if current_dir and details[0].startswith("l") or current_dir:
                         details.append(current_dir + "/" + details[-1])
                     files_incl_details.append(details[0:8] + [details[-1]])
             df = pd.DataFrame(files_incl_details, columns=columns)
@@ -143,7 +141,6 @@ class ECMock:
             .stdout.decode()
             .split("\n")
         )
-        return
 
     def search(self, inp_f: builtins.list[str]) -> int | None:
         """Mock ec_search."""
@@ -183,7 +180,6 @@ class ECTMPMock(ECMock):
             .stdout.decode()
             .split("\n")
         )
-        return
 
 
 def create_data(variable_name: str, size: int) -> xr.Dataset:

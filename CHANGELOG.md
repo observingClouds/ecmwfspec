@@ -10,6 +10,7 @@
 - `[pygments](https://github.com/pygments/pygments)`: 2.19.2 → 2.20.0 ([#99](https://github.com/observingClouds/ecmwfspec/pull/99))
 - `[dask](https://github.com/dask/dask)`: 2026.3.0 → 2026.7.0 ([#100](https://github.com/observingClouds/ecmwfspec/pull/100))
 - `dask`: 2026.7.0 → 2026.7.1 ([#102](https://github.com/observingClouds/ecmwfspec/pull/102))
+- `pre-commit`: 4.6.0 → 4.6.1 ([#104](https://github.com/observingClouds/ecmwfspec/pull/104))
 
 ## 0.0.7
 - Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)

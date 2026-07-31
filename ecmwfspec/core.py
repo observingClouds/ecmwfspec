@@ -140,7 +140,7 @@ class ECFile(io.IOBase):
             elif Path(self._file).exists():
                 if self.touch:
                     Path(self._file).touch()
-                self._file_obj = open(self._file, mode, **kwargs)
+                self._file_obj = self._open_local_file()
 
     @property
     def name(self) -> str:
@@ -148,6 +148,10 @@ class ECFile(io.IOBase):
         if self._file_obj is not None:
             return self._file
         return self._url
+
+    def _open_local_file(self) -> IO[Any]:
+        file_descriptor = os.open(self._file, os.O_RDONLY)
+        return os.fdopen(file_descriptor, self.mode, **self.kwargs)
 
     def _retrieve_items(self, retrieve_files: list[tuple[str, str]]) -> None:
         """Get items from the tape archive."""
@@ -184,7 +188,14 @@ class ECFile(io.IOBase):
                         if not df.empty and "tape" in df.columns
                         else None
                     )
-                except Exception:
+                except (
+                    FileNotFoundError,
+                    KeyError,
+                    PermissionError,
+                    TypeError,
+                    ValueError,
+                    IndexError,
+                ):
                     tape = None
                 tape_files.append((tape, inp_file))
 
@@ -215,16 +226,16 @@ class ECFile(io.IOBase):
                     self._file_queue.task_done()
                 try:
                     self._retrieve_items(items)
-                except Exception as error:
+                except Exception:
                     _ = [
                         self._file_queue.get() for _ in range(self._file_queue.qsize())
                     ]
                     self._file_queue.task_done()
-                    raise error
+                    raise
                 _ = self._file_queue.get()
                 self._file_queue.task_done()
         self._file_queue.join()
-        self._file_obj = open(self._file, self.mode, **self.kwargs)
+        self._file_obj = self._open_local_file()
 
     def __fspath__(self) -> str:
         if self._file_obj is None:
@@ -408,13 +419,11 @@ class ECFileSystem(AbstractFileSystem):
         list : List of strings if detail is False, or list of directory
                information dicts if detail is True.
         """
-        if isinstance(path, UPath):
-            path = path
-        elif isinstance(path, str):
+        if isinstance(path, str):
             path = UPath(path)
         elif isinstance(path, Path):
             path = UPath(str(path))
-        else:
+        elif not isinstance(path, UPath):
             raise TypeError(f"Path type {type(path)} not supported.")
 
         if self.protocol == "ectmp":

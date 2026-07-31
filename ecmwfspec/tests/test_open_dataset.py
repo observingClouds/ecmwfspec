@@ -25,7 +25,7 @@ def test_protocols() -> None:
 
 def test_xr_accessor(patch_dir: Path, zarr_file: Path) -> None:
     """Test staging."""
-    zarr_file1 = [*zarr_file.rglob("*.zarr")][0]
+    zarr_file1 = next(iter(zarr_file.rglob("*.zarr")))
     urls = [f"ec://{zarr_file1}"]
 
     dataset = xr.open_dataset(

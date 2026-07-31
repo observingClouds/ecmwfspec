@@ -35,9 +35,6 @@ source = "scm"
 [tool.ruff]
 line-length = 87
 
-[tool.ruff.lint]
-ignore = ["B006", "BLE001", "PLW0127", "PLW1510", "RUF015", "SIM115", "SIM117", "TRY002", "TRY201", "UP022"]
-
 [tool.ruff.lint.mccabe]
 max-complexity = 10
 

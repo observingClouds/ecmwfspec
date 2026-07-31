@@ -10,6 +10,10 @@ from upath import UPath
 logger = logging.getLogger(__name__)
 
 
+class ECFSCommandError(RuntimeError):
+    """Raised when an ECFS command fails."""
+
+
 def ls(
     path: str | Path | UPath,
     detail: bool = False,
@@ -21,8 +25,6 @@ def ls(
     """List files in a directory."""
     if isinstance(path, Path):
         path = str(path)
-    elif isinstance(path, str):
-        path = path
     elif isinstance(path, UPath):
         path = path.path
 
@@ -90,9 +92,7 @@ def ls(
     if directory:
         command.insert(-1, "-d")
 
-    result = subprocess.run(
-        command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
+    result = subprocess.run(command, check=False, capture_output=True, text=True)
     logger.debug(result.stdout)
     if result.returncode != 0:
         logger.debug(result.stderr)
@@ -101,7 +101,7 @@ def ls(
         elif "File does not exist" in result.stderr:
             raise FileNotFoundError(result.stderr)
         else:
-            raise Exception(result.stderr)
+            raise ECFSCommandError(result.stderr)
 
     result_lines = result.stdout.split("\n")
     result_lines = [f for f in result_lines if f != ""]
@@ -145,4 +145,4 @@ def cp(src: str | Path, dst: str | Path) -> None:
 
     if result != "":
         logger.error(result)
-        raise Exception(f"Error running command: {command}")
+        raise ECFSCommandError(f"Error running command: {command}")

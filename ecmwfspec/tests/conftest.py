@@ -7,7 +7,7 @@ import os
 import shutil
 from collections.abc import Generator
 from pathlib import Path
-from subprocess import PIPE, run
+from subprocess import run
 from tempfile import TemporaryDirectory
 from unittest import mock
 
@@ -20,16 +20,14 @@ import xarray as xr
 class ECMock:
     """A mock that emulates what pyec is doing."""
 
-    def __init__(self, _cache: dict[int, builtins.list[str]] = {}) -> None:
-        self._cache = _cache
+    def __init__(self, _cache: dict[int, builtins.list[str]] | None = None) -> None:
+        self._cache = {} if _cache is None else _cache
 
     def ec_list(self, inp_path: str) -> str:
         """Mock the ec_list method."""
-        res = (
-            run(["ls", "-l", inp_path], stdout=PIPE, stderr=PIPE)
-            .stdout.decode()
-            .split("\n")
-        )
+        res = run(
+            ["ls", "-l", inp_path], check=False, capture_output=True, text=True
+        ).stdout.split("\n")
         return "\n".join(res[1:] + [res[0]])
 
     def ls(
@@ -89,7 +87,7 @@ class ECMock:
         if directory:
             command.insert(-1, "-d")
 
-        result = run(command, stdout=PIPE, stderr=PIPE, text=True)
+        result = run(command, check=False, capture_output=True, text=True)
 
         files = result.stdout.split("\n")
         files = [f for f in files if f != ""]
@@ -136,11 +134,7 @@ class ECMock:
         """Mock the ecp method."""
         inp_path = inp_path.replace("ec:", "")
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        _ = (
-            run(["cp", inp_path, out_path], stdout=PIPE, stderr=PIPE)
-            .stdout.decode()
-            .split("\n")
-        )
+        run(["cp", inp_path, out_path], check=False, capture_output=True, text=True)
 
     def search(self, inp_f: builtins.list[str]) -> int | None:
         """Mock ec_search."""
@@ -168,18 +162,14 @@ class ECMock:
 class ECTMPMock(ECMock):
     """A mock that emulates what ecfs is doing for temporary directories."""
 
-    def __init__(self, _cache: dict[int, builtins.list[str]] = {}) -> None:
+    def __init__(self, _cache: dict[int, builtins.list[str]] | None = None) -> None:
         super().__init__(_cache)
 
     def cp(self, inp_path: str, out_path: str) -> None:
         """Mock the ecp method."""
         inp_path = inp_path.replace("ectmp:", "TMP")
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        _ = (
-            run(["cp", inp_path, out_path], stdout=PIPE, stderr=PIPE)
-            .stdout.decode()
-            .split("\n")
-        )
+        run(["cp", inp_path, out_path], check=False, capture_output=True, text=True)
 
 
 def create_data(variable_name: str, size: int) -> xr.Dataset:
@@ -216,16 +206,22 @@ def create_data(variable_name: str, size: int) -> xr.Dataset:
 
 @pytest.fixture(scope="session")
 def patch_dir() -> Generator[Path, None, None]:
-    with TemporaryDirectory() as temp_dir:
-        with mock.patch("ecmwfspec.core.ecfs", ECMock()):
-            yield Path(temp_dir)
+    ecfs_mock = ECMock()
+    with (
+        TemporaryDirectory() as temp_dir,
+        mock.patch("ecmwfspec.core.ecfs", ecfs_mock),
+    ):
+        yield Path(temp_dir)
 
 
 @pytest.fixture(scope="session")
 def patch_ectmp_dir() -> Generator[Path, None, None]:
-    with TemporaryDirectory() as temp_dir:
-        with mock.patch("ecmwfspec.core.ecfs", ECTMPMock()):
-            yield Path(temp_dir)
+    ectmp_mock = ECTMPMock()
+    with (
+        TemporaryDirectory() as temp_dir,
+        mock.patch("ecmwfspec.core.ecfs", ectmp_mock),
+    ):
+        yield Path(temp_dir)
 
 
 @pytest.fixture(scope="session")

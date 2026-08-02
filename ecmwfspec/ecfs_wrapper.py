@@ -3,7 +3,6 @@
 import logging
 import subprocess
 from pathlib import Path
-from typing import Optional, Union
 
 import pandas as pd
 from upath import UPath
@@ -11,19 +10,21 @@ from upath import UPath
 logger = logging.getLogger(__name__)
 
 
+class ECFSCommandError(RuntimeError):
+    """Raised when an ECFS command fails."""
+
+
 def ls(
-    path: Union[str, Path, UPath],
+    path: str | Path | UPath,
     detail: bool = False,
     allfiles: bool = False,
     recursive: bool = False,
     directory: bool = False,
-    order: Optional[str] = None,
+    order: str | None = None,
 ) -> pd.DataFrame:
     """List files in a directory."""
     if isinstance(path, Path):
         path = str(path)
-    elif isinstance(path, str):
-        path = path
     elif isinstance(path, UPath):
         path = path.path
 
@@ -91,9 +92,7 @@ def ls(
     if directory:
         command.insert(-1, "-d")
 
-    result = subprocess.run(
-        command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
+    result = subprocess.run(command, check=False, capture_output=True, text=True)
     logger.debug(result.stdout)
     if result.returncode != 0:
         logger.debug(result.stderr)
@@ -102,7 +101,7 @@ def ls(
         elif "File does not exist" in result.stderr:
             raise FileNotFoundError(result.stderr)
         else:
-            raise Exception(result.stderr)
+            raise ECFSCommandError(result.stderr)
 
     result_lines = result.stdout.split("\n")
     result_lines = [f for f in result_lines if f != ""]
@@ -115,9 +114,7 @@ def ls(
         for line in result_lines:
             if line.startswith("/"):
                 current_dir = line.rstrip(":")
-            elif line.startswith("total"):
-                continue
-            elif line.endswith(" .."):
+            elif line.startswith("total") or line.endswith(" .."):
                 continue
             else:
                 details = line.split()
@@ -136,7 +133,7 @@ def ls(
     return df
 
 
-def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
+def cp(src: str | Path, dst: str | Path) -> None:
     """Copy a file from src to dst."""
     command = [
         "ecp",
@@ -148,6 +145,4 @@ def cp(src: Union[str, Path], dst: Union[str, Path]) -> None:
 
     if result != "":
         logger.error(result)
-        raise Exception("Error running command: {}".format(command))
-
-    return
+        raise ECFSCommandError(f"Error running command: {command}")

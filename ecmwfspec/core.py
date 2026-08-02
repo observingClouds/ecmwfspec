@@ -11,13 +11,8 @@ from queue import Queue
 from typing import (
     IO,
     Any,
-    Dict,
-    List,
     Literal,
-    Optional,
-    Tuple,
     TypedDict,
-    Union,
     overload,
 )
 
@@ -40,14 +35,14 @@ if not logger.handlers:
 
 
 MAX_RETRIES = 2
-FileQueue: Queue[Tuple[str, str]] = Queue(maxsize=-1)
+FileQueue: Queue[tuple[str, str]] = Queue(maxsize=-1)
 
 
 class FileInfo(TypedDict):
     name: str
-    size: Optional[int]
-    type: Optional[str]
-    tape: Optional[str]
+    size: int | None
+    type: str | None
+    tape: str | None
 
 
 _retrieval_lock = threading.Lock()
@@ -105,16 +100,16 @@ class ECFile(io.IOBase):
         self,
         url: str,
         local_file: str,
-        ec_cache: Union[str, Path],
+        ec_cache: str | Path,
         *,
         override: bool = True,
         mode: str = "rb",
         touch: bool = True,
         file_permissions: int = 0o3777,
         delay: int = 2,
-        order: Optional[str] = None,
+        order: str | None = None,
         _lock: threading.Lock = _retrieval_lock,
-        _file_queue: Queue[Tuple[str, str]] = FileQueue,
+        _file_queue: Queue[tuple[str, str]] = FileQueue,
         **kwargs: Any,
     ):
         if not set(mode) & set("r"):  # The mode must have a r
@@ -127,7 +122,7 @@ class ECFile(io.IOBase):
         self.touch = touch
         self.file_permissions = file_permissions
         self._order_num = 0
-        self._file_obj: Optional[IO[Any]] = None
+        self._file_obj: IO[Any] | None = None
         self._lock = _lock
         self.kwargs = kwargs
         self.mode = mode
@@ -145,7 +140,7 @@ class ECFile(io.IOBase):
             elif Path(self._file).exists():
                 if self.touch:
                     Path(self._file).touch()
-                self._file_obj = open(self._file, mode, **kwargs)
+                self._file_obj = self._open_local_file()
 
     @property
     def name(self) -> str:
@@ -153,6 +148,10 @@ class ECFile(io.IOBase):
         if self._file_obj is not None:
             return self._file
         return self._url
+
+    def _open_local_file(self) -> IO[Any]:
+        file_descriptor = os.open(self._file, os.O_RDONLY)
+        return os.fdopen(file_descriptor, self.mode, **self.kwargs)
 
     def _retrieve_items(self, retrieve_files: list[tuple[str, str]]) -> None:
         """Get items from the tape archive."""
@@ -189,7 +188,14 @@ class ECFile(io.IOBase):
                         if not df.empty and "tape" in df.columns
                         else None
                     )
-                except Exception:
+                except (
+                    FileNotFoundError,
+                    KeyError,
+                    PermissionError,
+                    TypeError,
+                    ValueError,
+                    IndexError,
+                ):
                     tape = None
                 tape_files.append((tape, inp_file))
 
@@ -220,16 +226,16 @@ class ECFile(io.IOBase):
                     self._file_queue.task_done()
                 try:
                     self._retrieve_items(items)
-                except Exception as error:
+                except Exception:
                     _ = [
                         self._file_queue.get() for _ in range(self._file_queue.qsize())
                     ]
                     self._file_queue.task_done()
-                    raise error
+                    raise
                 _ = self._file_queue.get()
                 self._file_queue.task_done()
         self._file_queue.join()
-        self._file_obj = open(self._file, self.mode, **self.kwargs)
+        self._file_obj = self._open_local_file()
 
     def __fspath__(self) -> str:
         if self._file_obj is None:
@@ -280,7 +286,7 @@ class ECFile(io.IOBase):
     @staticmethod
     def flush() -> None:
         """Flushing file systems shouldn't work for ro modes."""
-        return None
+        return
 
     def writelines(self, *arg: Any) -> None:
         """Compatibility method."""
@@ -326,8 +332,8 @@ class ECFileSystem(AbstractFileSystem):
 
     def __init__(
         self,
-        block_size: Optional[int] = None,
-        ec_cache: Optional[Union[str, Path]] = None,
+        block_size: int | None = None,
+        ec_cache: str | Path | None = None,
         file_permissions: int = 0o3777,
         touch: bool = True,
         delay: int = 2,
@@ -379,21 +385,21 @@ class ECFileSystem(AbstractFileSystem):
 
     @overload
     def ls(
-        self, path: Union[str, Path, UPath], detail: Literal[True], **kwargs: Any
-    ) -> List[FileInfo]: ...
+        self, path: str | Path | UPath, detail: Literal[True], **kwargs: Any
+    ) -> list[FileInfo]: ...
 
     @overload
     def ls(
-        self, path: Union[str, Path, UPath], detail: Literal[False], **kwargs: Any
-    ) -> List[str]: ...
+        self, path: str | Path | UPath, detail: Literal[False], **kwargs: Any
+    ) -> list[str]: ...
 
     def ls(
         self,
-        path: Union[str, Path, UPath],
+        path: str | Path | UPath,
         detail: bool = True,
         recursive: bool = False,
         **kwargs: Any,
-    ) -> Union[List[FileInfo], List[str]]:
+    ) -> list[FileInfo] | list[str]:
         """List objects at path.
 
         This includes sub directories and files at that location.
@@ -413,13 +419,11 @@ class ECFileSystem(AbstractFileSystem):
         list : List of strings if detail is False, or list of directory
                information dicts if detail is True.
         """
-        if isinstance(path, UPath):
-            path = path
-        elif isinstance(path, str):
+        if isinstance(path, str):
             path = UPath(path)
         elif isinstance(path, Path):
             path = UPath(str(path))
-        else:
+        elif not isinstance(path, UPath):
             raise TypeError(f"Path type {type(path)} not supported.")
 
         if self.protocol == "ectmp":
@@ -451,7 +455,7 @@ class ECFileSystem(AbstractFileSystem):
         # Drop summary line of detailed listing
         # if detail:
         #     filelist = filelist[filelist.permissions != "total"]
-        detail_list: List[FileInfo] = []
+        detail_list: list[FileInfo] = []
         types = {"d": "directory", "-": "file", "o": "file"}  # o is undocumented
         detail_list = [
             {
@@ -484,9 +488,9 @@ class ECFileSystem(AbstractFileSystem):
         self,
         path: str | Path,
         mode: str = "rb",
-        block_size: Optional[int] = None,
+        block_size: int | None = None,
         autocommit: bool = True,
-        cache_options: Optional[Dict[str, Any]] = None,
+        cache_options: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> ECFile:
         path = Path(self._strip_protocol(path))
@@ -512,8 +516,8 @@ class ECTmpFileSystem(ECFileSystem):
 
     def __init__(
         self,
-        block_size: Optional[int] = None,
-        ec_cache: Optional[Union[str, Path]] = None,
+        block_size: int | None = None,
+        ec_cache: str | Path | None = None,
         file_permissions: int = 0o3777,
         touch: bool = True,
         delay: int = 2,
@@ -536,9 +540,9 @@ class ECTmpFileSystem(ECFileSystem):
         self,
         path: str | Path,
         mode: str = "rb",
-        block_size: Optional[int] = None,
+        block_size: int | None = None,
         autocommit: bool = True,
-        cache_options: Optional[Dict[str, Any]] = None,
+        cache_options: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> ECFile:
         if isinstance(path, Path):

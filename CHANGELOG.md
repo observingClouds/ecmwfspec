@@ -2,6 +2,10 @@
 
 ## unreleased
 
+### Maintenance
+
+- Change dependabot update frequency of `uv.lock` to quarterly.
+
 ### Dependencies
 
 - `[fsspec](https://github.com/fsspec/filesystem_spec)`: 2026.4.0 → 2026.6.0 ([#95](https://github.com/observingClouds/ecmwfspec/pull/95))

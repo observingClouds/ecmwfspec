@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- Configure pre-commit hook updates to be quarterly ([#109](https://github.com/observingClouds/ecmwfspec/pull/109))
+
 ### Dependencies
 
 - `[fsspec](https://github.com/fsspec/filesystem_spec)`: 2026.4.0 → 2026.6.0 ([#95](https://github.com/observingClouds/ecmwfspec/pull/95))

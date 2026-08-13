@@ -2,7 +2,10 @@
 
 ## unreleased
 
+### Maintenance
+
 - Configure pre-commit hook updates to be quarterly ([#109](https://github.com/observingClouds/ecmwfspec/pull/109))
+- Change dependabot update frequency of `uv.lock` to quarterly.
 
 ### Dependencies
 

@@ -16,6 +16,7 @@
 - `[dask](https://github.com/dask/dask)`: 2026.3.0 → 2026.8.0 ([#111](https://github.com/observingClouds/ecmwfspec/pull/111))
 - `pre-commit`: 4.6.0 → 4.6.2 ([#110](https://github.com/observingClouds/ecmwfspec/pull/110))
 - `[fsspec](https://github.com/fsspec/filesystem_spec)`: 2026.4.0 → 2026.9.0 ([#112](https://github.com/observingClouds/ecmwfspec/pull/112))
+- `[virtualenv](https://github.com/pypa/virtualenv)`: 20.39.0 → 21.14.9 ([#113](https://github.com/observingClouds/ecmwfspec/pull/113))
 
 ## 0.0.7
 - Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)

@@ -3,12 +3,11 @@ name = "ecmwfspec"
 dynamic = ["version"]
 description = "fsspec implementation for ECMWF File Storage System"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "fsspec",
     "dask",
     "universal-pathlib",
-    "typing_extensions; python_version<'3.11'",
     "xarray<=2024.11.0"
 ]
 

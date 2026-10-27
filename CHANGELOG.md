@@ -6,6 +6,7 @@
 
 - Configure pre-commit hook updates to be quarterly ([#109](https://github.com/observingClouds/ecmwfspec/pull/109))
 - Change dependabot update frequency of `uv.lock` to quarterly.
+- Drop support for Python 3.10 (end-of-life) and test on Python 3.11 to 3.14 ([#115](https://github.com/observingClouds/ecmwfspec/pull/115))
 
 ### Dependencies
 
@@ -18,6 +19,7 @@
 - `[fsspec](https://github.com/fsspec/filesystem_spec)`: 2026.4.0 → 2026.9.0 ([#112](https://github.com/observingClouds/ecmwfspec/pull/112))
 - `[virtualenv](https://github.com/pypa/virtualenv)`: 20.39.0 → 21.14.9 ([#113](https://github.com/observingClouds/ecmwfspec/pull/113))
 - `[certifi](https://github.com/certifi/python-certifi)`: 2026.1.4 → 2026.10.19 ([#114](https://github.com/observingClouds/ecmwfspec/pull/114))
+- `[filelock](https://github.com/tox-dev/filelock)`: 3.24.3 → 4.2.4 ([#115](https://github.com/observingClouds/ecmwfspec/pull/115))
 
 ## 0.0.7
 - Add option to retrieve files in tape order. [#53](https://github.com/observingClouds/ecmwfspec/pull/53)
